@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Freaken Item Bank — UACE 2026</title>
+<link rel="icon" href="icon.png" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/mhchem.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<style>
+#loader-overlay{position:fixed;inset:0;z-index:9999;background:#0b0b0e;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s}
+#loader-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-content{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;max-width:300px;width:100%}
+.loader-icons{display:flex;gap:14px;justify-content:center;margin-bottom:4px}
+.loader-icons .icon{font-size:28px;color:#0a84ff;animation:jump 1.4s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(10,132,255,.3))}
+.loader-icons .icon:nth-child(2){animation-delay:.15s;color:#5ac8fa}
+.loader-icons .icon:nth-child(3){animation-delay:.3s;color:#ff9f0a}
+.loader-icons .icon:nth-child(4){animation-delay:.45s;color:#64d2ff}
+.loader-icons .icon:nth-child(5){animation-delay:.6s;color:#ff6b6b}
+@keyframes jump{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-18px) scale(1.1)}60%{transform:translateY(-6px) scale(1.05)}}
+.loader-title{font-size:1.6rem;font-weight:700;letter-spacing:.06em;background:linear-gradient(135deg,#0a84ff,#5ac8fa,#0a84ff);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-text 2.4s ease-in-out infinite;font-family:-apple-system,'Inter',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+@keyframes shimmer-text{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.loader-sub{color:#8e8e93;font-size:.7rem;letter-spacing:.15em;font-weight:400;margin-top:-2px}
+.loader-error{display:none;flex-direction:column;align-items:center;gap:10px;margin-top:12px}
+.loader-error.show{display:flex}
+.loader-error p{color:#ff453a;font-size:.8rem;font-weight:500;margin:0}
+.loader-error .retry-loader-btn{background:#0a84ff;border:none;padding:6px 20px;border-radius:20px;font-weight:500;font-size:.8rem;color:#fff;cursor:pointer}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif;font-size:13px;background:#0b0b0b;color:#f1f5f9;display:flex;flex-direction:column}
+
+.header{position:fixed;top:16px;left:16px;right:16px;z-index:200;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.header-left{display:flex;align-items:center;gap:12px;pointer-events:auto}
+.header-center{pointer-events:auto;font-size:.7rem;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 12px;border-radius:20px;backdrop-filter:blur(4px);border:.5px solid rgba(255,255,255,.1);display:none}
+.header-center.show{display:inline-block}
+.header-right{display:flex;align-items:center;gap:8px;pointer-events:auto}
+.login-btn{width:40px;height:40px;background:rgba(255,255,255,.08);backdrop-filter:blur(4px);border-radius:50%;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;color:#94a3b8;font-size:18px}
+.login-btn:hover{background:rgba(255,255,255,.16);transform:scale(.96)}
+.login-btn{display:none}.login-btn.show{display:flex}
+
+#chat{flex:1;overflow-y:auto;padding:80px 16px 100px 16px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+
+.msg{padding:8px 12px;border-radius:18px;line-height:1.5;font-size:.8rem;word-wrap:break-word;animation:fadeSlide .2s ease-out;position:relative}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.bot{background:#1e293b;align-self:flex-start;border-bottom-left-radius:4px;border-left:2px solid #3b82f6;width:100%}
+.bot p{margin:.2em 0}
+.bot code{background:#0f172a;padding:.1em .4em;border-radius:6px;font-size:.8em}
+.bot pre{position:relative;background:#0f172a;padding:8px 12px;border-radius:8px;overflow-x:auto;margin:.3em 0;font-size:.75rem}
+.user{background:#3b82f6;align-self:flex-end;border-bottom-right-radius:4px;max-width:85%}
+
+.typing{background:#1e293b;align-self:flex-start;display:flex;align-items:center;gap:4px;padding:8px 14px;border-radius:30px;font-size:.8rem;color:#8e8ea0}
+.typing .dots span{display:inline-block;width:6px;height:6px;background:#8e8ea0;border-radius:50%;margin:0 1px;animation:blink 1.5s infinite}
+.typing .dots span:nth-child(2){animation-delay:.3s}
+.typing .dots span:nth-child(3){animation-delay:.6s}
+@keyframes blink{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.loader{display:inline-block;width:12px;height:12px;border:2px solid #94a3b8;border-top-color:#3b82f6;border-radius:50%;animation:spin .8s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.premium-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px}
+.premium-overlay.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.premium-modal{background:#1e293b;border-radius:20px;max-width:400px;width:100%;padding:24px 20px 20px;border:.5px solid rgba(255,255,255,.06);box-shadow:0 20px 60px rgba(0,0,0,.7);position:relative;max-height:90vh;overflow-y:auto;animation:modalPop .3s cubic-bezier(.22,.61,.36,1)}
+@keyframes modalPop{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.premium-modal::before{content:'';position:sticky;top:-24px;display:block;margin:-24px -20px 20px -20px;height:3px;background:linear-gradient(90deg,#f5b342,#e68a2e,#f5b342);background-size:200% 100%;animation:shimmer 3s ease-in-out infinite;z-index:3}
+@keyframes shimmer{0%,100%{background-position:0% 0%}50%{background-position:100% 0%}}
+.premium-modal .modal-icon{text-align:center;font-size:32px;color:#f5b342;margin-bottom:6px;display:block}
+.premium-modal h2{font-size:18px;font-weight:700;text-align:center;color:#f1f5f9;margin-bottom:4px}
+.premium-modal .subtitle{text-align:center;color:#94a3b8;font-size:12px;margin-bottom:16px;line-height:1.4}
+.premium-modal .subtitle strong{color:#f5b342}
+.premium-modal .input-group{margin-bottom:14px}
+.premium-modal .input-group label{display:block;font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:4px;letter-spacing:.3px;text-transform:uppercase}
+.premium-modal .input-group input{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid #334155;background:#0f172a;color:#f1f5f9;font-size:14px;outline:none;font-family:inherit;transition:.2s}
+.premium-modal .input-group input:focus{border-color:#f5b342;box-shadow:0 0 0 3px rgba(245,179,66,.25)}
+.premium-modal .modal-msg{padding:8px 12px;border-radius:10px;font-size:12px;margin-bottom:12px;display:none;align-items:center;gap:8px}
+.premium-modal .modal-msg.show{display:flex}
+.premium-modal .modal-msg.error{background:rgba(255,59,48,.15);color:#ff6b6b}
+.premium-modal .modal-msg.success{background:rgba(52,199,89,.15);color:#34c759}
+.premium-modal .modal-msg.expired{background:rgba(255,149,0,.15);color:#ff9500}
+.premium-modal .modal-buttons{display:flex;flex-direction:column;gap:8px}
+.premium-modal .btn{padding:10px 14px;border-radius:12px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit}
+.premium-modal .btn-primary{background:linear-gradient(135deg,#f5b342,#e68a2e);color:#1a1a1a}
+.premium-modal .btn-secondary{background:#334155;color:#f1f5f9;border:.5px solid #475569}
+.premium-modal .btn-whatsapp{background:#25d366;color:#fff}
+.premium-modal .btn-close-modal{background:transparent;color:#94a3b8;border:none;position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5}
+.premium-modal .divider{display:flex;align-items:center;gap:10px;margin:4px 0}
+.premium-modal .divider::before,.premium-modal .divider::after{content:'';flex:1;height:.5px;background:#334155}
+.premium-modal .divider span{font-size:10px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+
+.image-popup-overlay{position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .28s,visibility .28s;cursor:pointer;padding:20px}
+.image-popup-overlay.active{opacity:1;visibility:visible}
+.image-popup-wrapper{position:relative;max-width:92vw;max-height:92vh;display:flex;flex-direction:column;align-items:center;cursor:default}
+.image-popup-wrapper img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.65)}
+.image-popup-close{position:absolute;top:-46px;right:-6px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.image-popup-caption{text-align:center;color:#cbd5e1;font-size:.82rem;font-weight:500;margin-top:12px;padding:6px 16px;background:rgba(255,255,255,.06);border-radius:20px;max-width:90%}
+
+.bot img{max-width:100%;border-radius:10px;cursor:pointer;transition:transform .22s;box-shadow:0 4px 14px rgba(0,0,0,.35);display:block;margin:6px 0}
+
+.bot h1,.bot h2,.bot h3,.bot h4{margin:.6em 0 .2em;font-weight:600;line-height:1.3;color:#f0f0f0}
+.bot h1{font-size:1.2em;border-bottom:1px solid #3a3a3a;padding-bottom:.1em}
+.bot h2{font-size:1.1em}
+.bot h3{font-size:.95em}
+.bot h4{font-size:.85em;font-weight:500}
+.bot ul,.bot ol{margin:.2em 0;padding-left:1.5em}
+.bot li{margin:.1em 0}
+.bot blockquote{border-left:4px solid #5a9cff;padding-left:1em;margin:.4em 0;background:#2a2a2a;border-radius:4px;color:#c8c8c8;font-style:italic;font-size:.85em}
+.bot strong{font-weight:700;color:#0a84ff}
+.bot em{font-style:italic;color:#c0c0c0}
+.bot a{color:#5a9cff;text-decoration:underline}
+.bot hr{border:none;border-top:1px solid #444;margin:.5em 0}
+.bot sup,.bot sub{font-size:.7em}
+.bot sup{vertical-align:super}
+.bot sub{vertical-align:sub}
+.user strong{font-weight:700;color:#fff}
+
+.bot .table-scroll{overflow-x:auto;margin:.6em 0;border-radius:8px;border:1px solid #334155;background:#0b1220}
+.bot .table-scroll::-webkit-scrollbar{height:6px}
+.bot .table-scroll::-webkit-scrollbar-thumb{background:#334155;border-radius:6px}
+.bot table{width:100%;border-collapse:collapse;font-size:.76rem;min-width:100%}
+.bot table thead{background:#0f172a}
+.bot table th{padding:8px 12px;text-align:left;color:#93c5fd;font-weight:700;border-bottom:1.5px solid #3b82f6;white-space:nowrap}
+.bot table td{padding:7px 12px;color:#e2e8f0;border-bottom:1px solid #1e293b;vertical-align:top;white-space:nowrap}
+.bot table tr:last-child td{border-bottom:none}
+.bot table tbody tr:nth-child(even){background:rgba(15,23,42,.55)}
+
+.toast-msg{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:8px 20px;border-radius:12px;font-size:12px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:999;transition:opacity .3s;opacity:0;max-width:90%;text-align:center;pointer-events:none}
+.toast-msg.success{background:#16a34a}
+.toast-msg.warning{background:#eab308;color:#1a1a1a}
+
+#chat::-webkit-scrollbar{width:4px}
+#chat::-webkit-scrollbar-track{background:transparent}
+#chat::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:4px}
+
+.katex-display{margin:.2em 0 !important}
+.bot .katex-display{text-align:left;overflow-x:auto;overflow-y:hidden}
+.bot .katex{font-size:1.05em}
+.bot .katex-inline{display:inline-block}
+
+.bot pre .copy-btn{position:absolute;top:8px;right:8px;background:#334155;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;opacity:.7}
+.bot pre .copy-btn:hover{opacity:1}
+
+.message-actions{display:flex;gap:8px;margin-top:6px;opacity:0;transition:opacity .2s ease}
+.bot:hover .message-actions{opacity:1}
+.message-actions button{background:transparent;border:none;color:#94a3b8;cursor:pointer;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px;font-family:inherit}
+.message-actions button:hover{background:rgba(255,255,255,.06);color:#f1f5f9}
+
+.streaming-caret{display:inline-block;width:7px;height:13px;background:#0a84ff;margin-left:2px;vertical-align:middle;animation:blink-caret 1s steps(2) infinite;border-radius:1px}
+@keyframes blink-caret{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+.answer-panel{background:#1e293b;border-radius:18px;border-bottom-left-radius:4px;border-left:2px solid #f5b342;padding:14px 16px;margin:6px 0;width:100%;animation:fadeSlide .2s ease-out}
+.answer-panel-title{font-size:.7rem;color:#f5b342;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.part-preview{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:.78rem;color:#cbd5e1;line-height:1.55}
+.part-preview b{color:#f5b342}
+.answer-toolbar{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.answer-action-btn{padding:10px 16px;border-radius:10px;border:none;font-family:inherit;font-size:.76rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s;line-height:1}
+.answer-action-btn:active:not(:disabled){transform:scale(.97)}
+.answer-action-btn.primary{background:#3b82f6;color:#fff;box-shadow:0 4px 14px rgba(59,130,246,.25)}
+.answer-action-btn.primary:hover:not(:disabled){background:#2563eb}
+.answer-action-btn.primary:disabled{opacity:.5;cursor:not-allowed}
+.answer-action-btn.gold{background:linear-gradient(135deg,#f5b342,#e68a2e);color:#1a1a1a;box-shadow:0 4px 14px rgba(245,179,66,.25)}
+.answer-action-btn.gold:hover:not(:disabled){filter:brightness(1.06)}
+.answer-action-btn.gold:disabled{opacity:.5;cursor:not-allowed}
+.answer-action-btn.ghost{background:transparent;border:1px solid #334155;color:#cbd5e1}
+.answer-action-btn.ghost:hover:not(:disabled){background:rgba(255,255,255,.05);color:#fff}
+.btn-spinner{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+
+.img-preview-wrap{display:flex;gap:8px;flex-wrap:wrap}
+.img-preview{position:relative;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1.5px solid #334155}
+.img-preview img{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer}
+.img-preview .rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.75);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+
+.modal-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.8);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.modal-overlay.active{display:flex}
+.setup-modal{background:#0f172a;border:1px solid #1e293b;border-radius:20px;max-width:560px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.75);max-height:92vh;overflow:hidden;display:flex;flex-direction:column;animation:modalPop .3s cubic-bezier(.22,.61,.36,1)}
+.setup-head{padding:22px 24px 14px;border-bottom:1px solid #1e293b}
+.setup-head h2{font-size:1.15rem;font-weight:700;color:#f1f5f9;display:flex;align-items:center;gap:9px}
+.setup-head h2 i{color:#3b82f6;font-size:1rem}
+.setup-head .sub{color:#64748b;font-size:.73rem;margin-top:5px;line-height:1.5}
+.stepper{display:flex;gap:6px;margin-top:14px}
+.stepper .step{flex:1;height:4px;border-radius:4px;background:#1e293b;transition:.3s}
+.stepper .step.active{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.stepper .step.done{background:#3b82f6}
+.setup-body{padding:18px 24px 8px;overflow-y:auto;flex:1}
+.setup-body::-webkit-scrollbar{width:5px}
+.setup-body::-webkit-scrollbar-thumb{background:#334155;border-radius:5px}
+.setup-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#64748b;margin-bottom:8px}
+.choice-grid{display:grid;gap:9px}
+.choice-card{background:#111827;border:1.5px solid #1e293b;border-radius:12px;padding:13px 15px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:13px}
+.choice-card:hover{border-color:#3b82f6;background:#131d33;transform:translateY(-1px)}
+.choice-card.selected{border-color:#3b82f6;background:rgba(59,130,246,.1)}
+.choice-card .ico{width:38px;height:38px;border-radius:10px;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.3);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.choice-card.green .ico{background:rgba(52,199,89,.14);border-color:rgba(52,199,89,.35);color:#34c759}
+.choice-card.gold .ico{background:rgba(245,179,66,.14);border-color:rgba(245,179,66,.35);color:#f5b342}
+.choice-card.purple .ico{background:rgba(168,85,247,.14);border-color:rgba(168,85,247,.35);color:#a855f7}
+.choice-card .info{flex:1;min-width:0}
+.choice-card .title{font-size:.85rem;font-weight:600;color:#f1f5f9}
+.choice-card .desc{font-size:.7rem;color:#64748b;margin-top:2px;line-height:1.4}
+.choice-card .chev{color:#475569;font-size:.9rem}
+.setup-foot{padding:14px 24px 20px;display:flex;gap:10px;border-top:1px solid #1e293b}
+.setup-foot .setup-btn{flex:1}
+.setup-btn{padding:11px 14px;border-radius:11px;border:none;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+.setup-btn.primary{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
+.setup-btn.primary:hover{filter:brightness(1.06)}
+.setup-btn.primary:disabled{opacity:.5;cursor:not-allowed}
+.setup-btn.ghost{background:#1e293b;border:1px solid #334155;color:#cbd5e1}
+.setup-btn.ghost:hover{background:#334155;color:#fff}
+.selected-summary{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25);border-radius:11px;padding:12px 15px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:.78rem;color:#cbd5e1}
+.selected-summary i{color:#60a5fa;font-size:1rem}
+.selected-summary b{color:#f1f5f9}
+.topic-hint{font-size:.7rem;color:#64748b;line-height:1.5;padding:2px 4px;margin-top:4px}
+
+.topic-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.topic-chip{padding:8px 14px;border-radius:30px;border:1.5px solid #334155;background:#111827;color:#cbd5e1;font-size:.75rem;cursor:pointer;transition:.15s;font-family:inherit;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.topic-chip:hover{border-color:#3b82f6;color:#fff}
+.topic-chip.selected{background:rgba(59,130,246,.2);border-color:#3b82f6;color:#93c5fd}
+.topic-chip.selected::before{content:'✓ ';font-weight:700}
+.topic-search{width:100%;padding:10px 14px;border-radius:11px;border:1.5px solid #334155;background:#0f172a;color:#f1f5f9;font-size:.82rem;font-family:inherit;outline:none;transition:.2s;margin-bottom:6px}
+.topic-search:focus{border-color:#3b82f6}
+.topic-chip-count{font-size:.68rem;color:#64748b;padding:0 4px;margin-top:6px;display:block}
+
+/* ═══ COMBINED ANSWER PANEL ═══ */
+.answer-part-block{border:1px solid #334155;border-radius:12px;padding:12px;margin-bottom:10px;background:#0f172a}
+.answer-part-block .apb-title{font-size:.7rem;color:#f5b342;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.answer-part-block .apb-status{font-size:.62rem;padding:2px 8px;border-radius:20px;background:rgba(245,179,66,.15);color:#f5b342;font-weight:600;letter-spacing:.05em;margin-left:auto;text-transform:none}
+.answer-part-block.has-image .apb-status{background:rgba(52,199,89,.15);color:#34c759}
+
+/* ═══ FINAL ACTION BAR ═══ */
+.final-action-bar{
+    display:flex;gap:10px;flex-wrap:wrap;padding:12px 14px;
+    background:linear-gradient(135deg,rgba(30,41,59,.9),rgba(15,23,42,.9));
+    border:1px solid #334155;border-radius:16px;
+    margin-top:8px;animation:fadeSlide .25s ease-out;
+    width:100%;
+}
+.final-action-bar .bar-label{
+    width:100%;font-size:.62rem;color:#64748b;letter-spacing:.1em;
+    text-transform:uppercase;font-weight:700;margin-bottom:2px;
+    display:flex;align-items:center;gap:6px;
+}
+
+@media (max-width:520px){
+    .setup-modal{max-height:96vh}
+    .setup-head{padding:18px 18px 12px}
+    .setup-body{padding:14px 18px 6px}
+    .setup-foot{padding:12px 18px 16px}
+    .header-center{font-size:.6rem;padding:2px 10px}
+    .login-btn{width:34px;height:34px;font-size:14px}
+    #chat{padding:70px 12px 80px 12px}
+    .bot table{font-size:.72rem}
+    .bot table th,.bot table td{padding:6px 9px}
+}
+
+/* ═══ BACK BUTTON ═══ */
+.back-btn{
+    position:fixed;
+    top:16px;
+    left:16px;
+    z-index:999;
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:50%;
+    color:#94a3b8;
+    font-size:16px;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background .2s, color .2s, transform .15s;
+    -webkit-tap-highlight-color:transparent;
+}
+.back-btn:hover{
+    background:rgba(255,255,255,.16);
+    color:#f1f5f9;
+}
+.back-btn:active{
+    transform:scale(.94);
+}
+.back-btn:focus-visible{
+    outline:2px solid #3b82f6;
+    outline-offset:2px;
+}
+
+/* Mobile */
+@media (max-width:520px){
+    .back-btn{
+        top:12px;
+        left:12px;
+        width:34px;
+        height:34px;
+        font-size:14px;
+    }
+}
+</style>
+</head>
+<body>
+<!-- BACK BUTTON -->
+<a href="index.html" class="back-btn" id="backBtn" aria-label="Go back">
+    <i class="fas fa-chevron-left"></i>
+</a>
+<div id="loader-overlay">
+    <div class="loader-content">
+        <div class="loader-icons">
+            <i class="fas fa-brain icon"></i>
+            <i class="fas fa-book icon"></i>
+            <i class="fas fa-robot icon"></i>
+            <i class="fas fa-atom icon"></i>
+            <i class="fas fa-graduation-cap icon"></i>
+        </div>
+        <div class="loader-title">ITEMAX</div>
+        
+        <div class="loader-error" id="loaderError">
+            <p>⚠️ Check internet connection</p>
+            <button class="retry-loader-btn" onclick="location.reload()">Retry</button>
+        </div>
+    </div>
+</div>
+
+<div class="header">
+    <div class="header-left"></div>
+    <div class="header-center" id="requestCounter"></div>
+    <div class="header-right">
+        <button class="login-btn" id="loginBtn" title="Premium"><i class="fas fa-crown"></i></button>
+    </div>
+</div>
+
+<div id="chat"></div>
+
+<div class="modal-overlay" id="setupOverlay">
+    <div class="setup-modal" role="dialog" aria-modal="true">
+        <div class="setup-head">
+            <h2><i class="fas fa-clipboard-list"></i> <span id="setupTitle">Set Up Your Examination</span></h2>
+            <div class="sub" id="setupSub">Choose a subject, paper, construct, and topics.</div>
+            <div class="stepper" id="stepper">
+                <div class="step active" data-step="1"></div>
+                <div class="step" data-step="2"></div>
+                <div class="step" data-step="3"></div>
+                <div class="step" data-step="4"></div>
+                <div class="step" data-step="5"></div>
+            </div>
+        </div>
+        <div class="setup-body" id="setupBody"></div>
+        <div class="setup-foot" id="setupFoot"></div>
+    </div>
+</div>
+
+<div class="premium-overlay" id="premiumOverlay">
+    <div class="premium-modal" role="dialog">
+        <button class="btn-close-modal" id="premiumCloseBtn"><i class="fas fa-times"></i></button>
+        <span class="modal-icon"><i class="fas fa-crown"></i></span>
+        <h2 id="popupTitle">Premium Access</h2>
+        <p class="subtitle" id="popupSubtitle">Enter your <strong>premium code</strong> to unlock unlimited access.</p>
+        <div class="input-group">
+            <label for="premiumCodeInput">Premium Code</label>
+            <input type="text" id="premiumCodeInput" placeholder="your premium code..." autocomplete="off" autocapitalize="off" spellcheck="false" />
+        </div>
+        <div class="modal-msg" id="modalMsg"><i class="fas fa-circle-info"></i><span id="modalMsgText"></span></div>
+        <div class="modal-buttons">
+            <button class="btn btn-primary" id="premiumSubmitBtn"><i class="fas fa-check"></i> Submit</button>
+            <div class="divider"><span>or</span></div>
+            <button class="btn btn-whatsapp" id="premiumWhatsAppBtn"><i class="fab fa-whatsapp"></i> Subscribe / Renew</button>
+            <button class="btn btn-secondary" id="premiumFreeBtn" style="display:none;"><i class="fas fa-play"></i> Try for Free</button>
+            <button class="btn btn-secondary" id="premiumCancelBtn"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div class="image-popup-overlay" id="imagePopupOverlay">
+    <div class="image-popup-wrapper" id="imagePopupWrapper">
+        <button class="image-popup-close" id="imagePopupClose" aria-label="Close image"><i class="fas fa-times"></i></button>
+        <img id="imagePopupImg" src="" alt="" />
+        <div class="image-popup-caption" id="imagePopupCaption"></div>
+    </div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" style="display:none" />
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONFIG
+   ═══════════════════════════════════════════════════════════ */
+const CONFIG = {
+    GROQ_API_KEYS: [],           // ← ARRAY of all keys
+    GROQ_API_URL: "https://api.groq.com/openai/v1/chat/completions",
+    GROQ_MODELS_URL: "https://api.groq.com/openai/v1/models",
+};
+const GROQ_KEY_SHEET_ID = '1zWZIDYgqTA6_oeuUPZw_kvBLbKeI5qEB-QI3fEICYyQ';
+const GROQ_KEY_SHEET_NAME = 'Sheet1';
+const SUBSCRIPTION_SHEET_ID = '1ORSH3JyTwsuW52PMfTpCQFHHPVNcoVxpA5kzJZiF_v8';
+const SUBSCRIPTION_SHEET_NAME = 'Sheet1';
+const API_KEY = 'AIzaSyDEcLBhFHz7kH46_YwB2cQ5S-90j8e7L-g';
+const WHATSAPP_NUMBERS = ['256765649587', '256705726006'];
+const DAILY_LIMIT = 10;
+const MIN_REPLY_LENGTH = 20;
+
+/* ═══ KEY ROTATION STATE ═══ */
+let keyIndex = 0;  // round-robin pointer across CONFIG.GROQ_API_KEYS
+
+/* ═══════════════════════════════════════════════════════════
+   SUBJECTS → PAPERS → CONSTRUCTS → TOPICS
+   ═══════════════════════════════════════════════════════════ */
+const SUBJECTS = [
+    { id:'p425', code:'P425', name:'Principal Mathematics', icon:'fa-square-root-variable' },
+    { id:'p510', code:'P510', name:'Physics', icon:'fa-atom' },
+    { id:'p525', code:'P525', name:'Chemistry', icon:'fa-flask' },
+    { id:'p530', code:'P530', name:'Biology', icon:'fa-dna' },
+];
+
+const PHYSICS_CONSTRUCTS = [
+    { id: 1, title: 'Force and Motion', desc: 'Measurement, statics, linear motion, motion under gravity, work-energy-power, friction, fluid mechanics, circular motion, gravitation.', icon: 'fa-gauge-high', topics: ['Measurement & Dimensions','Statics','Linear Motion','Motion Under Gravity','Work, Energy and Power','Solid Friction','Fluid Mechanics','Mechanical Properties of Matter','Circular Motion','Gravitation'] },
+    { id: 2, title: 'Energy', desc: 'Thermometry, heat quantities, transfer of heat, behaviour of gases, thermodynamics, optics, SHM, waves, sound.', icon: 'fa-fire-flame-simple', topics: ['Thermometry','Heat Quantities','Transfer of Heat','Behaviour of Gases','Thermodynamics','Reflection of Light','Refraction of Light','Optical Instruments','Simple Harmonic Motion','Progressive Waves','Stationary Waves','Sound Waves'] },
+    { id: 3, title: 'Charges and Fields', desc: 'Electrostatics, capacitors, digital electronics, current electricity, magnetism, electromagnetic induction, A.C circuits.', icon: 'fa-bolt', topics: ['Electrostatics','Capacitors','Digital Electronics','Current Electricity','Magnetism in Matter','Magnetic Effect of an Electric Current','Electromagnetic Induction','A.C Circuits'] },
+    { id: 4, title: 'Particles', desc: 'Atomic particles, quantum theory, nuclear processes and their modern applications.', icon: 'fa-atom', topics: ['Atomic Particles','Quantum Theory','Nuclear Processes'] }
+];
+
+const MATH1_CONSTRUCTS = [
+    { id: 1, title: 'Algebra', desc: 'Indices, logarithms, surds, equations, inequalities, polynomials, permutations, combinations, series, binomial expansion, complex numbers.', icon: 'fa-superscript', topics: ['Indices, Logarithms & Surds','Equations and Inequalities','Polynomials','Permutations and Combinations','Series & Binomial Expansion','Complex Numbers'] },
+    { id: 2, title: 'Geometry', desc: 'Coordinate geometry, trigonometry, vectors, spatial reasoning, and their application to real-life problems.', icon: 'fa-compass-drafting', topics: ['Coordinate Geometry 1','Trigonometry','Vectors','Coordinate Geometry 2'] },
+    { id: 3, title: 'Calculus', desc: 'Partial fractions, differentiation, integration, error analysis, trapezium rule, iterative methods, differential equations, flow charts.', icon: 'fa-infinity', topics: ['Partial Fractions','Differentiation 1','Integration 1','Error Analysis','Differentiation 2','Integration 2','Differential Equations','Trapezium Rule','Iterative Methods','Flow Charts'] }
+];
+
+const MATH2_CONSTRUCTS = [
+    { id: 1, title: 'Numerical Analysis', desc: 'Error analysis, iterative methods, trapezium rule, numerical integration.', icon: 'fa-calculator', topics: ['Error Analysis','Iterative Methods (Newton-Raphson & Linear Interpolation)','Trapezium Rule','Numerical Integration'] },
+    { id: 2, title: 'Data Analysis and Probability', desc: 'Descriptive statistics, correlation, probability theory, random variables, probability distributions, sampling distribution.', icon: 'fa-chart-bar', topics: ['Descriptive Statistics','Correlation and Scatter Diagrams','Probability Theory','Random Variables','Probability Distributions','Sampling Distribution'] },
+    { id: 3, title: 'Mechanics', desc: 'Dynamics, forces, projectiles, vectors, pulleys, relative motion, kinematics.', icon: 'fa-gauge-high', topics: ['Dynamics 1','Dynamics 2'] }
+];
+
+const CHEM_CONSTRUCTS = [
+    { id: 1, title: 'Foundations of Atomic Structure, Bonding & Periodicity', desc: 'Electronic configuration, bonding, VSEPR, periodic trends, radioactivity, Group 14/17 elements, d-block elements.', icon: 'fa-atom', topics: ['Atomic and Electronic Structure','Bonding and Structure','Periodicity I','Periodicity II'] },
+    { id: 2, title: 'Structure, Reactivity & Applications of Organic Molecules', desc: 'Functional groups, reaction mechanisms, alcohols, phenols, carbonyls, amines, polymers, multi-step syntheses.', icon: 'fa-flask', topics: ['Organic Chemistry I','Organic Chemistry II','Organic Chemistry III'] },
+    { id: 3, title: 'Molecular Interactions & Systems Dynamics', desc: 'Stoichiometry, thermochemistry, equilibria, buffer systems, solubility, electrochemistry, reaction kinetics.', icon: 'fa-vial', topics: ['Moles and Equations','Thermochemistry','Equilibria I','Equilibria II','Electrochemistry','Reaction Kinetics'] }
+];
+
+const BIO_CONSTRUCTS = [
+    { id: 1, title: 'Cellular Organisation, Respiration & Molecular Analysis', desc: 'Cell structure, organelles, ATP, protein synthesis, DNA, gene technology, pollution effects on cells.', icon: 'fa-microscope', topics: ['Cell Biology','Respiration','Inheritance and Evolution','Gene Technology'] },
+    { id: 2, title: 'Plant Physiology & Adaptation', desc: 'Photosynthesis (C3/C4), stomatal adaptations, water relations, plant hormones, photoperiodism, crop yield.', icon: 'fa-leaf', topics: ['Nutrition in Plants','Plant Co-ordination','Growth in Plants','Plant Adaptation'] },
+    { id: 3, title: 'Organismal Systems & Homeostasis', desc: 'Circulatory, nervous, immune, sensory and homeostatic systems; gas transport, thermoregulation, exercise physiology.', icon: 'fa-heart-pulse', topics: ['Blood Circulation','Gas Transport','Immunity & Vaccination','Neural Transmission','Sensory Perception','Homeostasis','Animal Behaviour'] },
+    { id: 4, title: 'Genetic, Evolutionary & Ecological Dynamics', desc: 'Mendelian/non-Mendelian genetics, natural selection, speciation, resistance, population dynamics, ecosystem balance.', icon: 'fa-dna', topics: ['Mendelian Genetics','Non-Mendelian Genetics','Evolution','Speciation & Resistance','Population Dynamics','Ecosystem Balance','Conservation & Restoration'] }
+];
+
+function getConstructsFor(subjId, paper){
+    if(subjId==='p510') return PHYSICS_CONSTRUCTS;
+    if(subjId==='p425' && paper===1) return MATH1_CONSTRUCTS;
+    if(subjId==='p425' && paper===2) return MATH2_CONSTRUCTS;
+    if(subjId==='p525') return CHEM_CONSTRUCTS;
+    if(subjId==='p530') return BIO_CONSTRUCTS;
+    return [];
+}
+function getPapers(subjId){
+    if(subjId==='p425') return [1,2];
+    return [1];
+}
+function getPaperInfo(subjId, paper){
+    if(subjId==='p425' && paper===1) return { name:'Paper 1 — Theory', desc:'Algebra, Geometry, and Calculus constructs.', icon:'fa-book-open' };
+    if(subjId==='p425' && paper===2) return { name:'Paper 2 — Theory', desc:'Numerical Analysis, Data Analysis & Probability, and Mechanics constructs.', icon:'fa-book-open' };
+    if(subjId==='p510') return { name:'Paper 1 — Theory', desc:'Four sections A–D covering Force & Motion, Energy, Charges & Fields, and Particles.', icon:'fa-book-open' };
+    if(subjId==='p525') return { name:'Paper 1 — Theory', desc:'Sections A and B covering Molecular Interactions, Atomic Structure, and Organic Chemistry.', icon:'fa-book-open' };
+    if(subjId==='p530') return { name:'Paper 1 — Theory', desc:'Scenario-based items covering the four Biology constructs.', icon:'fa-book-open' };
+    return { name:'Paper 1', desc:'', icon:'fa-book-open' };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GENERATION PROMPTS
+   ═══════════════════════════════════════════════════════════ */
+const PHYSICS_GENERATE_PROMPT = `You are a senior UNEB UACE Physics examiner and item writer. Generate ONE complete Physics Paper 1 (Theory) item that matches EXACTLY the style of the UACE Physics Paper 1 sample and mock papers (UNEB 2026, Joel PCM Mock 2026).
+
+CRITICAL RULES:
+• Scenario set in a real-life Ugandan/African context — name a specific person, community, school, farm, factory, hospital or engineering project.
+• Present clear DATA or GIVEN VALUES — provide all constants (g = 9.81 m s⁻², h, e, c, μ₀, ε₀, Stefan's constant, etc.), masses, angles, velocities, distances, forces.
+• Task parts: EXACTLY TWO parts — (a) and (b). NEVER a (c) or (d).
+• USE ONLY (a) and (b). NEVER (i), (ii), (iii), (c) or (d).
+• Because there are only TWO parts, FOLD every dimension that would normally belong to a third part (design / evaluation / recommendation / justification / critique) INTO part (a) or part (b) — whichever flows more naturally. All required analysis, calculation, evaluation, recommendation and justification must still be demanded, distributed across (a) and (b).
+• The task parts must demand: Analyse / Evaluate / Determine / Calculate / Design / Justify / Propose with justification.
+• Output ONLY the examination item. No commentary, no answers.
+
+MANDATORY STRUCTURE:
+1. Scenario (2–4 short paragraphs, named character, clear physics challenge).
+2. Data table with caption "Table X: ..." on its own line above (where relevant), units in headers.
+3. Additional data section ("Facts provided:" or "Take g = ..." or "Given: ...").
+4. Task: with EXACTLY TWO parts (a) and (b) — each on its own line. No (c).
+5. Horizontal rule, then exactly: — Now provide your answer. —
+
+CONSTRUCT-SPECIFIC GUIDANCE:
+
+CONSTRUCT 1 — FORCE AND MOTION
+Scenario elements: ramps, lifts, pulleys, structures, road design, banked curves, landslides, vehicles, sports.
+Typical data: masses, forces, coefficients of friction, angles, velocities, accelerations, distances.
+Typical tasks: (a) Analyse the forces/motion — resolve vectors, apply Newton's laws, calculate acceleration/tension/resultant, or determine stability, AND evaluate or recommend a design/safety measure based on those calculations. (b) Explain the physical principles behind the outcome, critique the design/safety measure, and propose justified improvements.
+
+CONSTRUCT 2 — ENERGY
+Scenario elements: solar cooking, solar panels, heat engines, thermodynamics, optical instruments, waves, SHM.
+Typical data: solar irradiance, specific heat capacities, latent heats, temperatures, wavelengths, refractive indices, wave equation, amplitudes, frequencies.
+Typical tasks: (a) Analyse the energy transfers / wave behaviour / optics — calculate energy needed, power, time, or wave parameters, AND design or evaluate improvements. (b) Justify the chosen design or improvement using thermal/optical/wave principles, and assess its limitations.
+
+CONSTRUCT 3 — CHARGES AND FIELDS
+Scenario elements: electric circuits, market fires from overloaded cables, transformers, capacitors, radio tuning, batteries, motors, generators, electromagnetic induction.
+Typical data: currents, voltages, resistances, lengths, capacitances, inductances, frequencies, magnetic flux densities, turns ratios.
+Typical tasks: (a) Analyse the circuit/field behaviour — calculate current, voltage, power, capacitance, inductance, EMF, resistance per metre, AND recommend safer/more efficient design parameters. (b) Evaluate the recommended design, explain real-world applications, and critique the risks.
+
+CONSTRUCT 4 — PARTICLES
+Scenario elements: X-ray tubes, photoelectric effect, atomic models, nuclear energy, radioactive decay, LED blue light, gold-leaf electroscope, CT scanners.
+Typical data: potential differences, work functions, wavelengths, photon energies, half-lives, mass defects, binding energies.
+Typical tasks: (a) Analyse the quantum/nuclear processes — calculate photon energy, kinetic energy, threshold, decay constant, energy released, AND evaluate the benefits/risks of the technology. (b) Explain the applications, justify the choice of technology, and propose a safer or more efficient alternative.
+
+FORMATTING:
+• Markdown headings, **bold**, lists, tables.
+• ALL mathematics in $...$ only.
+• NEVER mention "LaTeX".`;
+
+const MATH_GENERATE_PROMPT = `You are a senior UNEB UACE Mathematics examiner and item writer. Generate ONE complete Principal Mathematics Paper item matching the exact style of the UACE mock papers.
+
+CRITICAL RULES:
+• Scenario set in a real-life Ugandan/African context — name a specific person, business, community, government project.
+• Present a clear CHALLENGE requiring mathematical reasoning.
+• Data in a Markdown table with caption "Table X: ..." on its own line above, units in headers.
+• Task parts: EXACTLY TWO parts — (a) and (b). NEVER a (c) or (d).
+• USE ONLY (a) and (b). NEVER (i), (ii), (iii), (c) or (d).
+• Because there are only TWO parts, FOLD every dimension that would normally belong to a third part (evaluate / recommend / justify / interpret / critique) INTO part (a) or part (b) — whichever flows more naturally. All required calculation, evaluation, recommendation and justification must still be demanded, distributed across (a) and (b).
+• Demand: Analyse / Determine / Calculate / Evaluate / Recommend / Justify / Propose.
+• Output ONLY the examination item. No commentary, no answers.
+
+MANDATORY STRUCTURE:
+1. Scenario (2–4 short paragraphs).
+2. Data table with caption and units in headers.
+3. Additional data section (constants, given equations) if needed.
+4. Task: with EXACTLY TWO parts (a) and (b) — each on its own line. No (c).
+5. Horizontal rule, then exactly: — Now provide your answer. —
+
+PAPER 1 CONSTRUCTS:
+• ALGEBRA: indices/logs/surds, quadratic & polynomial equations, permutations, combinations, AP/GP series, binomial expansion, complex numbers. EXACTLY TWO parts (a) and (b) — the first carries the core derivation/calculation, the second carries the applied evaluation/recommendation (with any third-step content folded in).
+• GEOMETRY: coordinate geometry, trigonometry, vectors, spatial reasoning. EXACTLY TWO parts (a) and (b).
+• CALCULUS: differentiation, integration, error analysis, trapezium rule, iterative methods, differential equations. EXACTLY TWO parts (a) and (b).
+
+PAPER 2 CONSTRUCTS:
+• NUMERICAL ANALYSIS: error propagation, Newton-Raphson, linear interpolation, trapezium rule. EXACTLY TWO parts (a) and (b).
+• DATA ANALYSIS & PROBABILITY: descriptive statistics, correlation, probability, distributions, confidence intervals. EXACTLY TWO parts (a) and (b).
+• MECHANICS: dynamics, forces, projectiles, vectors, pulleys, relative motion, closest approach. EXACTLY TWO parts (a) and (b).
+
+FORMATTING:
+• Markdown headings, **bold**, lists, tables.
+• ALL mathematics in $...$ only. Vectors: $\\begin{pmatrix} 4 \\\\ -2 \\end{pmatrix}$.
+• NEVER mention "LaTeX".`;
+
+const CHEM_GENERATE_PROMPT = `You are a senior UNEB UACE Chemistry examiner and item writer. Generate ONE complete Chemistry Paper 1 item matching the style of the compiled UACE Chemistry Paper 1 mock papers.
+
+CRITICAL RULES:
+• Scenario set in a real-life Ugandan/African context — name a specific factory, hospital, industry, farm or community.
+• Present clear DATA or given values.
+• Data in a Markdown table with caption "Table X: ..." on its own line above, units in headers.
+• Additional data section ("Given the following data:") for constants, standard enthalpies, electrode potentials, Kc values, etc.
+• Task parts: EXACTLY TWO parts — (a) and (b). NEVER a (c) or (d).
+• USE ONLY (a) and (b). NEVER (i), (ii), (iii), (c) or (d).
+• Because there are only TWO parts, FOLD any dimension that would normally belong to a third part (e.g., suitability assessment or mitigation) INTO part (a) or part (b) — whichever flows more naturally.
+• KEEP TASKS VERY SHORT AND SIMPLE. Put ALL the complex details, chemical equations, and specific mechanisms inside the SCENARIO, not the task. The task should just be a simple question like "Explain the differences...", "Help the cooperative solve...", or "Assess the suitability...".
+• Output ONLY the examination item. No commentary, no answers.
+
+MANDATORY STRUCTURE:
+1. Scenario (2–4 short paragraphs).
+2. Data table with caption and units in headers.
+3. Additional data section.
+4. Task: with EXACTLY TWO parts (a) and (b) — each on its own line. No (c).
+5. Horizontal rule, then exactly: — Now provide your answer. —
+
+CONSTRUCT-SPECIFIC GUIDANCE:
+
+CONSTRUCT 1 — FOUNDATIONS OF ATOMIC STRUCTURE, BONDING & PERIODICITY
+Scenario elements: industry selecting materials, water treatment, aerospace construction, industrial furnaces, rural electrification, radioactivity.
+Typical data: atomic radii, ionization energies, electronegativity, melting points, boiling points, bond energies, electron affinities, half-lives, percentage composition.
+Typical tasks: (a) Analyse trends in physical/chemical properties and relate them to reactivity or structure. (b) Evaluate the suitability of specific elements/compounds for a given industrial use and recommend the best choice with justification.
+
+CONSTRUCT 2 — STRUCTURE, REACTIVITY & APPLICATIONS OF ORGANIC MOLECULES
+Scenario elements: pharmaceutical production, deodorant/fragrance manufacture, plastic/polymer industries, waste oil processing, cosmetics, cocoa husk valorisation, small-scale agro-processing.
+
+MANDATORY SCENARIO CONTENT (You MUST include these exact types of sentences):
+1. Two specific synthesis routes.
+   - CRITICAL RULE: Randomly select DIFFERENT, uncommon organic compounds for EVERY item generated. DO NOT always use ethanol or propanoic acid. Use a wide variety from the allowed list.
+   - Each target conversion must require a pathway of 3 to 6 steps (internally plan this), BUT you MUST NOT mention the number of steps or any reaction conditions in the scenario.
+   - Format the sentence simply like this: "The team wants to know how [Compound A] can be converted into [Compound B]."
+   - Also: "They also want to understand how [Compound C] can be converted into [Compound D]."
+   - Examples of good target conversions (but generate NEW ones): bromoethane to propan-2-amine; propene to propanone; methylbenzene to benzoic acid; ethanal to butan-2-ol; but-1-ene to 2-methylpropan-2-ol.
+2. Two specific reaction mechanisms:
+   - "They also lack information on how the reactions for [Specific Reaction 1] and [Specific Reaction 2] actually occur."
+   - (Example: "They lack information on how the nitration of benzene and the esterification of propan-1-ol with ethanoic acid actually occur.")
+3. The names of the compounds considered for use.
+4. The physical property challenge (e.g., evaporation rates or boiling points).
+
+STRICT COMPOUND RESTRICTIONS:
+• ONLY use organic compounds that fall strictly under these classes: alkanes, alkenes, alkynes, benzene and its derivatives, alkyl halides, alcohols, ethers, carbonyl compounds (ketones, aldehydes, carboxylic acids, esters), amines, and amides.
+• Use COMMON and SIMPLE names of organic compounds (e.g., ethene, ethanol, propanone, bromoethane, nitrobenzene, ethanoic acid). NEVER use complex, obscure, or highly substituted compounds.
+
+MANDATORY TASK STRUCTURE (Simple and Short — exactly like the UACE mock papers, and with EXACTLY TWO parts):
+(a) Explain the differences in [physical property, e.g., evaporation behaviour/boiling points] of the compounds considered, AND help the [cooperative/team] solve their challenges about the reactions and formation of the intended products (specifically asking them to show the synthesis routes and mechanisms mentioned in the scenario).
+(b) Assess the suitability of one of the compounds for use in the production of a specified product and suggest appropriate mitigation for its likely danger.
+
+NOTE:
+- Do NOT use long sentences in the task.
+- Do NOT use roman numerals (i, ii, iii).
+- Do NOT use a part (c) or (d).
+- Keep the wording simple and exactly like a UNEB paper.
+
+CONSTRUCT 3 — MOLECULAR INTERACTIONS & SYSTEMS DYNAMICS
+Scenario elements: fertilizer plants (Haber/Contact process), biogas digesters, water treatment, portable power units, buffer preparation, industrial cooling.
+Typical data: concentration-time tables, equilibrium constants, electrode potentials, thermochemical data, initial rates.
+Typical tasks: (a) Analyse the data — determine Kc, Kp, rate constant, EMF, enthalpy, pH of buffer, order of reaction. (b) Evaluate the industrial/real-world applications, suggest methods to optimise, and assess environmental/health impacts.
+
+FORMATTING:
+• Markdown headings, **bold**, lists, tables.
+• ALL mathematics in $...$ only.
+• Chemical formulae: $CO_2$, $H_2O$, $C_6H_{12}O_6$, $H_2SO_4$, $Cr_2O_7^{2-}$, $MnO_4^-$.
+• Reaction equations with $\\rightarrow$ or $\\rightleftharpoons$.
+• NEVER mention "LaTeX".`;
+
+const BIO_GENERATE_PROMPT = `You are a senior UNEB UACE Biology examiner and item writer. Generate ONE complete Biology Paper 1 (Theory) item matching the exact format of the UACE Biology Paper 1 mock papers (UTEC, KASEC, HOIMA, ASSHU, KAMSSA, SEEB, COUHEIA, BUGANDA, JIEB, BIO HUB 2026).
+
+ABSOLUTE RULES FOR BIOLOGY:
+• NO calculations.
+• NO biochemical pathways to be drawn.
+• All items set in UGANDA with named characters in specific places.
+• Real-life problem involving a patient, athlete, farmer, student, fisherman, or community.
+
+MANDATORY STRUCTURE:
+1. Scenario (2–4 paragraphs) — named character in a Ugandan setting with a specific problem.
+2. Data table comparing affected vs normal groups (units in headers).
+3. Scenario MUST end with 2–3 specific PROPOSED INTERVENTIONS that part (b) will evaluate.
+4. Task: with EXACTLY TWO parts:
+   (a) Analyse/Analyze/Explain the information/data provided to explain how [condition] affected [parameters] leading to [observed effects].
+   (b) Evaluate/Assess the effectiveness of the proposed interventions in improving [outcome].
+5. USE ONLY (a), (b). NEVER (i), (ii), (iii), (c) or (d).
+6. NO calculations. NO biochemical pathways.
+7. Horizontal rule, then exactly: — Now provide your answer. —
+
+CONSTRUCT-SPECIFIC GUIDANCE:
+
+CONSTRUCT 1 — CELLULAR ORGANISATION, RESPIRATION & MOLECULAR ANALYSIS
+Scenario elements: pollution (factory effluent, cyanide, heavy metals, arsenic), tissue engineering, gene therapy, cancer genetics, recombinant insulin, stem cells.
+Typical data: ATP concentration, mitochondria per cell, ribosomes, membrane integrity, mutation rate, cytochrome c oxidase, mitotic index.
+Typical tasks: (a) Explain how the pollutant/mutation disrupts cellular structure and function, producing the observed symptoms. (b) Evaluate proposed interventions.
+
+CONSTRUCT 2 — PLANT PHYSIOLOGY & ADAPTATION
+Scenario elements: farmers in a Ugandan district facing drought, high temperature, shade nets, hormones, C3 vs C4 crops.
+Typical data: photosynthetic rate, stomatal conductance, transpiration rate, cuticle thickness, trichome density, Kranz anatomy, hormone levels, dry matter gain, flowering rate.
+Typical tasks: (a) Account for differences in yield/performance. (b) Evaluate proposed agricultural interventions.
+
+CONSTRUCT 3 — ORGANISMAL SYSTEMS & HOMEOSTASIS
+Scenario elements: athletes collapsing, carbon monoxide poisoning, hypothermia, HIV, diabetes, allergies, blood transfusion.
+Typical data: blood oxygen saturation, pulse rate, breathing rate, carboxyhaemoglobin, core body temperature, ADH, urine output, plasma pH, synaptic vesicles, reaction time, blood lactate.
+Typical tasks: (a) Analyse the physiological mechanisms behind each symptom. (b) Evaluate proposed medical/management interventions.
+
+CONSTRUCT 4 — GENETIC, EVOLUTIONARY & ECOLOGICAL DYNAMICS
+Scenario elements: pesticide resistance, invasive species, habitat fragmentation, species competition, forest reserves, lake ecosystems.
+Typical data: allele frequency, genotype counts, phenotype distribution in test cross, predator population, invasive species cover, dissolved oxygen, cichlid species count.
+Typical tasks: (a) Analyse the genetic and ecological mechanisms. (b) Evaluate proposed integrated pest management, conservation or restoration strategies.
+
+FORMATTING:
+• Markdown headings, **bold**, lists, tables.
+• Use $...$ inline only for simple symbols ($CO_2$, $O_2$, percentages).
+• NEVER mention "LaTeX".`;
+
+/* ═══════════════════════════════════════════════════════════
+   MARKING PROMPTS — MULTI-PART (all parts in one combined response)
+   ═══════════════════════════════════════════════════════════ */
+const MULTI_MARKING_SYSTEM_PROMPT = `You are a senior UNEB UACE examiner marking ALL PARTS of a competency-based examination item in ONE combined report.
+
+You will be given MULTIPLE parts — each is a distinct sub-question (a), (b), etc., each answered by the candidate. You MUST produce a separate, complete marking report for EACH part. Do NOT merge them. Do NOT skip any part.
+
+═══════════ PER-PART MARKING FRAMEWORK (STRICT) ═══════════
+For EACH part, identify and score a MINIMUM OF FIVE (5) distinct creditworthy expected responses / points.
+
+For each expected response:
+• State the point clearly.
+• Mark it: ✓ Awarded | ½ Partially awarded | ✗ Not awarded.
+• Give the mark value (2 marks, 1 mark, ½ mark).
+• Quote or paraphrase what the candidate wrote (or state "no response given").
+• Explain briefly WHY the point was credited or not, in examiner voice.
+
+Credit valid alternatives and label them "✓ (valid alternative)".
+
+═══════════ PER-PART OUTPUT STRUCTURE ═══════════
+
+# Marking Report — Part (X)
+
+**Expected responses (minimum 5):**
+1. ✓ Point one — 2 marks — Candidate wrote: "…" — Credited because …
+2. ✓ Point two — 2 marks — …
+3. ½ Point three — 1 mark — …
+4. ✗ Point four — 0 marks — …
+5. ✓ Point five — 1 mark — …
+
+**Subtotal for Part (X): X / Y**
+
+Use this EXACT structure for EACH part provided, in order (a), (b).
+
+═══════════ FINAL SUMMARY (after all parts) ═══════════
+
+# Overall Summary
+- **Part (a):** X / Y
+- **Part (b):** X / Y
+(only include the parts actually provided above)
+- **Total:** X / Y
+- **Percentage:** Z%
+- **Overall band:** (Distinction | Credit | Pass | Fail)
+- **Strengths:** short paragraph
+- **Gaps to close:** short paragraph
+- **Examiner's advice:** targeted advice
+
+FORMATTING:
+• Markdown headings, **bold**, lists, tables.
+• Use $...$ inline only for simple symbols.
+• Never mention "LaTeX".
+• Mark EVERY part provided. Do NOT skip any part.`;
+
+const MULTI_BIO_MARKING_PROMPT = `You are a senior UNEB UACE Biology examiner marking ALL PARTS of a scenario-based Biology item in ONE combined report.
+
+You will be given MULTIPLE parts — each is a distinct sub-question (a), (b), etc., each answered by the candidate. You MUST produce a separate, complete marking report for EACH part. Do NOT merge them. Do NOT skip any part.
+
+═══════════ PER-PART MARKING REPORT STYLE — FOLLOW EXACTLY ═══════════
+Every expected response MUST be a **FULLY EXPLAINED PARAGRAPH** under its own numbered bullet. Do NOT write one giant block of text. Do NOT write fragments or keyword bullets. Each bulleted paragraph must:
+
+• Be a self-contained, richly explained biological statement — typically 3–6 sentences long.
+• Start from the **molecular/gene/cellular cause** shown in the scenario data and trace the mechanism step by step.
+• **Link every step DIRECTLY to the scenario** — name the character, the specific parameter, or the value in the data table.
+• Trace the **cause-and-effect chain**: molecular event → cellular effect → organ/system effect → the observed symptom or population change described in the scenario.
+• Use **bold** to highlight every key marking point.
+• End the paragraph with a short verdict line: "— ✓ Awarded — 2 marks — Candidate wrote '…' — Credited because …" (or ½ / ✗ with the appropriate reason).
+
+REQUIRED STRUCTURE PER PART (Markdown):
+
+# Marking Report — Part (X)
+
+**Expected responses (minimum 5):**
+
+**1. [Heading of point 1]**
+[Full paragraph with **bold marking points** linked to the scenario, ending with the verdict line.]
+
+**2. [Heading of point 2]**
+[Full paragraph with **bold marking points**, ending with the verdict line.]
+
+**3. [Heading of point 3]**
+[Full paragraph …]
+
+**4. [Heading of point 4]**
+[Full paragraph …]
+
+**5. [Heading of point 5]**
+[Full paragraph …]
+
+**Subtotal for Part (X): X / Y**
+
+Use this EXACT structure for EACH part provided, in order (a), (b).
+
+FOR PART (b) — EVALUATION:
+Give each proposed intervention its own numbered bullet with a fully explained paragraph that covers: its effect, its limitation(s)/shortcoming(s), and its suitability. Then add a final numbered paragraph giving the combined strategy and why. Bold every marking point.
+
+═══════════ FINAL SUMMARY (after all parts) ═══════════
+
+# Overall Summary
+- **Part (a):** X / Y
+- **Part (b):** X / Y
+- **Total:** X / Y
+- **Percentage:** Z%
+- **Overall band:** (Distinction | Credit | Pass | Fail)
+- **Strengths:** short paragraph
+- **Gaps to close:** short paragraph
+- **Examiner's advice:** targeted advice
+
+FORMATTING:
+• Each marking point is its OWN numbered paragraph — never a giant wall of text.
+• Use **bold** inside every paragraph to highlight the credit-earning terms.
+• Link every paragraph to the scenario data (name the character, cite the value).
+• Use $...$ inline only for chemical formulae ($CO_2$, $O_2$) or percentages.
+• NEVER mention "LaTeX".
+• Mark EVERY part provided. Do NOT skip any part.`;
+
+const MULTI_SCORING_GUIDE_SYSTEM_PROMPT = `You are a senior UNEB examiner preparing OFFICIAL SCORING GUIDES (model answers) for ALL PARTS of a UACE examination item in ONE combined response.
+
+You will be given MULTIPLE parts. Produce a complete, separate scoring guide for EACH part. Do NOT merge them. Do NOT skip any part.
+
+═══════════ PER-PART OUTPUT FORMAT ═══════════
+
+# Scoring Guide — Part (X)
+
+## Model Answer
+[Full step-by-step answer. Show ALL working — formulas, substitutions, calculations, units, reasoning. For Mathematics, show every manipulation. For Physics, show the formula, substitution, final value with units, and interpretation. For Chemistry, show balanced equations and mechanisms. For Biology, give full biological reasons, mechanisms and locations.]
+
+## Key Points to Award
+- Point one — X marks
+- Point two — X marks
+- Point three — X marks
+- Point four — X marks
+- Point five — X marks
+
+Use this EXACT structure for EACH part provided, in order (a), (b).
+
+RULES:
+• Show ALL working.
+• Use Markdown tables where data sets are involved.
+• Use $...$ for ALL mathematics.
+• NEVER mention "LaTeX".
+• Be precise, rigorous and complete.
+• Provide a scoring guide for EVERY part provided.`;
+
+const MULTI_BIO_SCORING_GUIDE_PROMPT = `You are a senior UNEB UACE Biology examiner preparing OFFICIAL SCORING GUIDES (model answers) for ALL PARTS of a UACE Biology item in ONE combined response.
+
+You will be given MULTIPLE parts. Produce a complete, separate scoring guide for EACH part. Do NOT merge them. Do NOT skip any part.
+
+═══════════ MODEL-ANSWER STYLE (PER PART) — FOLLOW EXACTLY ═══════════
+The Model Answer for each part MUST be presented as **MULTIPLE WELL-EXPLAINED PARAGRAPHS**, one paragraph per marking point, each under its own numbered bullet. Do NOT write one giant wall of text, and do NOT write fragments or keyword bullets.
+
+Each numbered paragraph must:
+• Be a self-contained, richly explained biological statement — typically 4–7 sentences long.
+• Link the biological mechanism DIRECTLY to the **specific data/observation in the scenario** — name the character, the parameter, the numerical value in the data table.
+• Trace the **cause-and-effect chain**: molecular/gene event → cellular effect → organ/system effect → the observed symptom or population change in the scenario.
+• Use **bold** to highlight every **KEY MARKING POINT**.
+• Use → where helpful to show the direction of cause-effect within a sentence.
+
+═══════════ PER-PART OUTPUT FORMAT ═══════════
+# Scoring Guide — Part (X)
+
+## Model Answer
+
+**1. [Heading of marking point 1]**
+[Full paragraph with **bold marking points**, linked to the scenario data.]
+
+**2. [Heading of marking point 2]**
+[Full paragraph with **bold marking points**, linked to the scenario data.]
+
+**3. [Heading of marking point 3]**
+[Full paragraph with **bold marking points** …]
+
+**4. [Heading of marking point 4]**
+[Full paragraph with **bold marking points** …]
+
+**5. [Heading of marking point 5]**
+[Full paragraph with **bold marking points** …]
+
+## Key Points Awarded
+Quick-reference list for the examiner:
+- **Point one** — X marks
+- **Point two** — X marks
+- **Point three** — X marks
+- **Point four** — X marks
+- **Point five** — X marks
+(at least 5 points)
+
+Use this EXACT structure for EACH part provided, in order (a), (b).
+
+FOR PART (b) — EVALUATION:
+Write AT LEAST ONE numbered paragraph per proposed intervention (state its effect + its limitation(s)) followed by a final numbered paragraph giving an overall recommendation on which to use/combine and why. Each paragraph is fully explained prose with bold marking points.
+
+RULES:
+• Every marking point is its own numbered, fully explained paragraph — NEVER one giant wall of text.
+• Bold every marking point INSIDE each paragraph.
+• Link every paragraph to the scenario data.
+• Use $...$ inline only for simple symbols ($CO_2$, $O_2$, percentages).
+• NEVER mention "LaTeX".
+• Provide a scoring guide for EVERY part provided.`;
+
+/* ═══════ STATE ═══════ */
+let availableModels = [];
+let visionModels = [];
+let currentModelId = null;
+let currentModelDisplay = null;
+let isWaiting = false;
+
+let subscriptionData = [];
+let userState = null;
+let premiumCode = null;
+let requestCount = 0;
+let lastRequestDate = null;
+let pendingPopupCallback = null;
+
+let wizardSubject = null;
+let wizardPaper = null;
+let wizardConstruct = null;
+let wizardTopics = [];
+let wizardStep = 1;
+
+let currentSubject = null;
+let currentPaper = null;
+let currentConstruct = null;
+let currentTopics = [];
+let currentItemText = null;
+let currentParts = [];
+
+let partImages = {};               // { 'a': {dataUrl}, 'b': {dataUrl} }   (max 2)
+let allPartsMarked = false;        // true once combined marking is done
+let allGuidesShown = false;        // true once combined scoring guides shown
+let currentAttachTargetLabel = null;
+
+/* DOM */
+const chatContainer = document.getElementById('chat');
+const requestCounter = document.getElementById('requestCounter');
+const loginBtn = document.getElementById('loginBtn');
+const premiumOverlay = document.getElementById('premiumOverlay');
+const premiumCloseBtn = document.getElementById('premiumCloseBtn');
+const premiumCancelBtn = document.getElementById('premiumCancelBtn');
+const premiumFreeBtn = document.getElementById('premiumFreeBtn');
+const premiumCodeInput = document.getElementById('premiumCodeInput');
+const premiumSubmitBtn = document.getElementById('premiumSubmitBtn');
+const premiumWhatsAppBtn = document.getElementById('premiumWhatsAppBtn');
+const modalMsg = document.getElementById('modalMsg');
+const modalMsgText = document.getElementById('modalMsgText');
+const popupTitle = document.getElementById('popupTitle');
+const popupSubtitle = document.getElementById('popupSubtitle');
+const loaderOverlay = document.getElementById('loader-overlay');
+const loaderError = document.getElementById('loaderError');
+const imagePopupOverlay = document.getElementById('imagePopupOverlay');
+const imagePopupImg = document.getElementById('imagePopupImg');
+const imagePopupCaption = document.getElementById('imagePopupCaption');
+const imagePopupClose = document.getElementById('imagePopupClose');
+const setupOverlay = document.getElementById('setupOverlay');
+const setupTitle = document.getElementById('setupTitle');
+const setupSub = document.getElementById('setupSub');
+const setupBody = document.getElementById('setupBody');
+const setupFoot = document.getElementById('setupFoot');
+const stepper = document.getElementById('stepper');
+const fileInput = document.getElementById('fileInput');
+
+/* ═══════ UTIL ═══════ */
+function escapeHtml(text){const d=document.createElement('div');d.textContent=text;return d.innerHTML;}
+function showToast(text,duration=3500,type=''){
+    const ex=document.querySelector('.toast-msg'); if(ex) ex.remove();
+    const div=document.createElement('div');
+    div.className=`toast-msg ${type}`; div.textContent=text;
+    document.body.appendChild(div);
+    requestAnimationFrame(()=>{div.style.opacity='1';});
+    setTimeout(()=>{div.style.opacity='0';setTimeout(()=>div.remove(),400);},duration);
+}
+function isBiology(){ return currentSubject && currentSubject.id === 'p530'; }
+function isPhysics(){ return currentSubject && currentSubject.id === 'p510'; }
+function isMath(){ return currentSubject && currentSubject.id === 'p425'; }
+function isChem(){ return currentSubject && currentSubject.id === 'p525'; }
+
+/* ═══════ FETCH ALL KEYS ═══════ */
+async function fetchGroqApiKeys(){
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${GROQ_KEY_SHEET_ID}/values/${encodeURIComponent(GROQ_KEY_SHEET_NAME)}?key=${API_KEY}`;
+    const res=await fetch(url);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json=await res.json();
+    if(!json.values||json.values.length<2) throw new Error('API key sheet empty');
+    const headers=json.values[0].map(h=>h.trim().toLowerCase());
+    const ki=headers.indexOf('apikey');
+    if(ki===-1) throw new Error('apikey column missing');
+    const keys=[];
+    for(let i=1; i<json.values.length; i++){
+        const key=(json.values[i][ki]||'').trim();
+        if(key && !keys.includes(key)) keys.push(key);
+    }
+    if(keys.length===0) throw new Error('No API keys found in sheet');
+    return keys;
+}
+
+/* ═══════ IMAGE POPUP (For user answers) ═══════ */
+function openImagePopup(src,alt){
+    if(!src) return;
+    imagePopupImg.src=src; imagePopupImg.alt=alt||'';
+    imagePopupCaption.textContent=alt||'';
+    imagePopupCaption.style.display=alt?'block':'none';
+    imagePopupOverlay.classList.add('active');
+    document.body.style.overflow='hidden';
+}
+function closeImagePopup(){
+    imagePopupOverlay.classList.remove('active');
+    document.body.style.overflow='';
+    setTimeout(()=>{if(!imagePopupOverlay.classList.contains('active')){imagePopupImg.src='';}},300);
+}
+imagePopupClose.addEventListener('click',e=>{e.stopPropagation();closeImagePopup();});
+imagePopupOverlay.addEventListener('click',e=>{if(e.target===imagePopupOverlay) closeImagePopup();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&imagePopupOverlay.classList.contains('active')) closeImagePopup();});
+chatContainer.addEventListener('click',e=>{
+    const img=e.target.closest('.bot img, .msg.user img');
+    if(!img) return;
+    if(img.closest('pre')||img.closest('code')) return;
+    e.preventDefault(); e.stopPropagation();
+    const src=img.getAttribute('src')||img.currentSrc;
+    const alt=img.getAttribute('alt')||'';
+    if(src&&src.trim().length>0) openImagePopup(src,alt);
+});
+
+/* ═══════ SUBSCRIPTIONS ═══════ */
+function fetchSubscriptions(){
+    if(SUBSCRIPTION_SHEET_ID==='PASTE_YOUR_SUBSCRIPTION_SHEET_ID_HERE'){subscriptionData=[];return Promise.resolve([]);}
+    const url=`https://sheets.googleapis.com/v4/spreadsheets/${SUBSCRIPTION_SHEET_ID}/values/${encodeURIComponent(SUBSCRIPTION_SHEET_NAME)}?key=${API_KEY}`;
+    return fetch(url).then(r=>{if(!r.ok) throw new Error(`HTTP ${r.status}`);return r.json();}).then(json=>{
+        if(!json.values||json.values.length<2){subscriptionData=[];return [];}
+        const headers=json.values[0];
+        subscriptionData=json.values.slice(1).map(row=>{const o={};headers.forEach((h,i)=>{o[h.trim()]=(row[i]||'').trim();});return o;});
+        return subscriptionData;
+    }).catch(()=>{subscriptionData=[];return [];});
+}
+function parseDate(str){
+    if(!str) return null;
+    const p=str.split(/[\/\-.]/); if(p.length!==3) return null;
+    let d,m,y; const a=parseInt(p[0]),b=parseInt(p[1]),c=parseInt(p[2]);
+    if(a>12&&b<=12){d=a;m=b-1;y=c;} else if(b>12&&a<=12){d=b;m=a-1;y=c;} else {d=a;m=b-1;y=c;}
+    const dt=new Date(y,m,d);
+    if(dt.getFullYear()!==y||dt.getMonth()!==m||dt.getDate()!==d) return null;
+    return dt;
+}
+function getTodayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function loadState(){
+    try{
+        const s=localStorage.getItem('freaken_item_state_v15');
+        if(s){
+            const d=JSON.parse(s);
+            userState=d.userState||null;premiumCode=d.premiumCode||null;
+            requestCount=d.requestCount||0;lastRequestDate=d.lastRequestDate||null;
+            const today=getTodayStr();
+            if(lastRequestDate!==today){requestCount=0;lastRequestDate=today;saveState();}
+            return;
+        }
+    }catch(e){}
+    userState=null;premiumCode=null;requestCount=0;lastRequestDate=getTodayStr();saveState();
+}
+function saveState(){localStorage.setItem('freaken_item_state_v15',JSON.stringify({userState,premiumCode,requestCount,lastRequestDate:lastRequestDate||getTodayStr()}));}
+function incrementRequest(){
+    const today=getTodayStr();
+    if(lastRequestDate!==today){requestCount=0;lastRequestDate=today;}
+    requestCount++;saveState();updateUI();
+}
+function validateCodeAgainstSheet(code){
+    if(!subscriptionData||subscriptionData.length===0) return {valid:false,reason:'No subscription data'};
+    const t=code.trim();
+    const m=subscriptionData.find(r=>(r.secret_code||'').trim().toLowerCase()===t.toLowerCase());
+    if(!m) return {valid:false,reason:'Invalid code'};
+    const exp=parseDate((m.expiry_date||'').trim());
+    if(!exp) return {valid:false,reason:'Invalid expiry'};
+    if(exp<=new Date()) return {valid:false,reason:'Expired',expiry:m.expiry_date};
+    return {valid:true,code:t,expiry:m.expiry_date};
+}
+async function refreshUserState(){
+    await fetchSubscriptions();
+    loadState();
+    if(userState==='premium'&&premiumCode){
+        const r=validateCodeAgainstSheet(premiumCode);
+        if(!r.valid){userState='free';premiumCode=null;saveState();showPopup('premium','Your premium code has expired.',true);}
+    }else if(userState==='free'){
+        const today=getTodayStr();
+        if(lastRequestDate!==today){requestCount=0;lastRequestDate=today;saveState();}
+    }
+    updateUI();
+}
+function updateUI(){
+    const isPremium=(userState==='premium');
+    const isFree=(userState==='free');
+    if(isFree){requestCounter.textContent=`Requests: ${requestCount}/${DAILY_LIMIT}`;requestCounter.classList.add('show');}
+    else requestCounter.classList.remove('show');
+    loginBtn.classList.toggle('show',!isPremium);
+}
+
+/* ═══════ POPUPS ═══════ */
+function showPopup(type,message='',isError=false){
+    premiumOverlay.classList.add('active');
+    modalMsg.classList.remove('show','error','success','expired');
+    premiumCodeInput.value='';
+    const modal=premiumOverlay.querySelector('.premium-modal'); if(modal) modal.scrollTop=0;
+    if(type==='firstLaunch'){
+        premiumFreeBtn.style.display='flex';premiumCancelBtn.style.display='none';
+        popupTitle.textContent='Welcome to Freaken Item Bank';
+        popupSubtitle.innerHTML='Enter your <strong>premium code</strong> or <strong>try for free</strong> (10 requests/day).';
+    }else{
+        premiumFreeBtn.style.display='none';premiumCancelBtn.style.display='flex';
+        if(type==='premium'){
+            popupTitle.textContent='Premium Access';
+            popupSubtitle.innerHTML='Enter your <strong>premium code</strong> for unlimited access.';
+            if(message) showModalMessage(message,isError?'error':'expired');
+        }else if(type==='limitReached'){
+            popupTitle.textContent='Daily Limit Reached';
+            popupSubtitle.innerHTML="You've used all 10 free requests today.";
+            if(message) showModalMessage(message,'expired');
+        }
+    }
+    setTimeout(()=>{try{premiumCodeInput.focus({preventScroll:true});}catch(e){premiumCodeInput.focus();}},300);
+}
+function hidePopup(){premiumOverlay.classList.remove('active');modalMsg.classList.remove('show');premiumCodeInput.value='';}
+function showModalMessage(t,type){modalMsgText.textContent=t;modalMsg.className='modal-msg show '+type;}
+async function handlePremiumSubmit(){
+    const code=premiumCodeInput.value.trim();
+    if(!code){showModalMessage('Please enter your premium code.','error');return;}
+    await fetchSubscriptions();
+    const r=validateCodeAgainstSheet(code);
+    if(!r.valid){
+        if(r.reason==='Expired'){showModalMessage('⏳ Code expired. Please renew.','expired');userState='free';premiumCode=null;saveState();updateUI();}
+        else showModalMessage('Invalid code.','error');
+        return;
+    }
+    userState='premium';premiumCode=code;saveState();updateUI();hidePopup();
+    if(typeof pendingPopupCallback==='function'){const cb=pendingPopupCallback;pendingPopupCallback=null;setTimeout(cb,50);}
+    showToast('✅ Premium activated.','success');
+}
+function handleFreeTrial(){
+    userState='free';premiumCode=null;requestCount=0;lastRequestDate=getTodayStr();saveState();updateUI();hidePopup();
+    if(typeof pendingPopupCallback==='function'){const cb=pendingPopupCallback;pendingPopupCallback=null;setTimeout(cb,50);}
+    showToast(`🔓 Free tier (${DAILY_LIMIT}/day).`,'success');
+}
+function canSend(){
+    if(userState==='premium') return true;
+    if(userState==='free'){
+        const today=getTodayStr();
+        if(lastRequestDate!==today){requestCount=0;lastRequestDate=today;saveState();updateUI();}
+        if(requestCount<DAILY_LIMIT) return true;
+        showPopup('limitReached','Limit reached.',true);
+        return false;
+    }
+    showPopup('firstLaunch','Please choose an option.',false);
+    return false;
+}
+
+/* ═══════ MARKDOWN PIPELINE ═══════ */
+function normalizeMathDelimiters(text){
+    if(!text) return text;
+    let f=text.replace(/\$\$([\s\S]*?)\$\$/g,(m,c)=>'$'+c.trim()+'$');
+    f=f.replace(/\$\$\$([\s\S]*?)\$\$\$/g,(m,c)=>'$'+c.trim()+'$');
+    f=f.replace(/\\\[([\s\S]*?)\\\]/g,(m,c)=>'$'+c.trim()+'$');
+    f=f.replace(/\\\(([\s\S]*?)\\\)/g,(m,c)=>'$'+c.trim()+'$');
+    return f;
+}
+function splitCombinedEquations(text){
+    const regex=/\$([^$]*?)\$/g;let m;const ranges=[];
+    while((m=regex.exec(text))!==null) ranges.push({start:m.index,end:m.index+m[0].length,content:m[1]});
+    let result=text;
+    for(let i=ranges.length-1;i>=0;i--){
+        const r=ranges[i];const parts=[];let cur='';let depth=0;
+        for(const ch of r.content){
+            if(ch==='{'||ch==='(') depth++;
+            else if(ch==='}'||ch===')') depth--;
+            else if(ch===','&&depth===0){parts.push(cur.trim());cur='';continue;}
+            cur+=ch;
+        }
+        if(cur.trim()) parts.push(cur.trim());
+        if(parts.length<=1) continue;
+        const nm=parts.map(p=>'$'+p+'$').join(' ');
+        result=result.substring(0,r.start)+nm+result.substring(r.end);
+    }
+    return result;
+}
+function fixLatexMistakes(text){
+    if(!text) return text;
+    let f=text;
+    f=f.replace(/\\cdotp/g,'\\cdot');
+    f=normalizeMathDelimiters(f);
+    f=f.replace(/;\s*\\longrightarrow\s*;/g,' \\longrightarrow ');
+    return f;
+}
+function ensureMathDelimiters(text){
+    if(!text) return text;
+    const processed=normalizeMathDelimiters(text);
+    return processed.split('\n').map(line=>{
+        const t=line.trim();
+        if(!t||t.includes('$')) return line;
+        if(/\\[a-zA-Z]+/.test(t)&&!t.includes('=')&&!t.includes('http')) return '$'+t+'$';
+        return line;
+    }).join('\n');
+}
+function renderLatex(element){
+    if(!element) return;
+    if(typeof renderMathInElement==='undefined'){setTimeout(()=>renderLatex(element),200);return;}
+    try{
+        renderMathInElement(element,{
+            delimiters:[{left:'$',right:'$',display:false}],
+            skipTags:['pre','code','textarea','script','style'],
+            throwOnError:false,errorColor:'#ff6b6b'
+        });
+        element.querySelectorAll('.katex-error').forEach(err=>{
+            const raw=err.getAttribute('data-latex')||err.textContent;
+            if(raw) err.parentNode.replaceChild(document.createTextNode('$'+raw+'$'),err);
+        });
+    }catch(e){}
+}
+function highlightCode(c){if(typeof Prism!=='undefined') c.querySelectorAll('pre code').forEach(b=>{try{Prism.highlightElement(b);}catch(e){}});}
+function addCodeCopyButtons(container){
+    container.querySelectorAll('pre').forEach(pre=>{
+        if(pre.querySelector('.copy-btn')) return;
+        const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='Copy';
+        btn.onclick=()=>{const t=pre.innerText;navigator.clipboard.writeText(t).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000);});};
+        pre.style.position='relative';pre.appendChild(btn);
+    });
+}
+function addMessageActions(botDiv,rawText){
+    const a=document.createElement('div');a.className='message-actions';
+    const cp=document.createElement('button');cp.innerHTML='<i class="fas fa-copy"></i> Copy';
+    cp.onclick=()=>{navigator.clipboard.writeText(rawText).then(()=>showToast('Copied!',1500,'success'));};
+    a.appendChild(cp);
+    botDiv.appendChild(a);
+}
+function wrapTables(html){
+    if(!html) return html;
+    const div=document.createElement('div');div.innerHTML=html;
+    div.querySelectorAll('table').forEach(table=>{
+        if(table.parentElement && table.parentElement.classList.contains('table-scroll')) return;
+        const wrapper=document.createElement('div');wrapper.className='table-scroll';
+        table.parentNode.insertBefore(wrapper,table);wrapper.appendChild(table);
+    });
+    return div.innerHTML;
+}
+function escapeBracesOutsideMath(text){
+    const segs=[];let i=0;
+    const regex=/\$([^$]*?)\$/g;
+    const processed=text.replace(regex,(m,c)=>{const ph=`__M${i}__`;segs.push({ph,content:c});i++;return ph;});
+    const esc=processed.replace(/\{/g,'&#123;').replace(/\}/g,'&#125;');
+    let r=esc;
+    segs.forEach(s=>{r=r.replace(s.ph,`$${s.content}$`);});
+    return r;
+}
+function processBotText(t){
+    if(!t) return '';
+    let c=t;
+    c=c.replace(/xx([^x]*)xx/g,'**$1**');
+    c=fixLatexMistakes(c);
+    c=ensureMathDelimiters(c);
+    c=splitCombinedEquations(c);
+    c=escapeBracesOutsideMath(c);
+    return c;
+}
+function formatMarkdown(text){
+    if(!text) return "";
+    if(typeof marked!=='undefined'){
+        marked.setOptions({breaks:true,gfm:true,pedantic:false,smartypants:true,headerIds:false,mangle:false});
+        let raw=marked.parse(text);
+        raw=wrapTables(raw);
+        if(typeof DOMPurify!=='undefined'){
+            return DOMPurify.sanitize(raw,{ADD_ATTR:['target','loading'],ADD_TAGS:['iframe']});
+        }
+        return raw;
+    }
+    return escapeHtml(text).replace(/\n/g,'<br>');
+}
+
+/* ═══════ ADD MESSAGE ═══════ */
+function addMessage(text,type){
+    const div=document.createElement("div");
+    div.className=`msg ${type}`;
+    if(type==="bot"){
+        const processed=processBotText(text);
+        div.setAttribute('data-raw-text',text);
+        div.innerHTML=formatMarkdown(processed);
+        chatContainer.appendChild(div);
+        renderLatex(div);
+        highlightCode(div);
+        addCodeCopyButtons(div);
+        addMessageActions(div,text);
+    }else{
+        div.textContent=text;
+        chatContainer.appendChild(div);
+    }
+    div.scrollIntoView({behavior:"smooth",block:"end"});
+    return div;
+}
+function showTyping(){
+    const d=document.createElement("div");d.className="typing";
+    d.innerHTML=`Thinking <span class="dots"><span>.</span><span>.</span><span>.</span></span>`;
+    chatContainer.appendChild(d);d.scrollIntoView({behavior:"smooth",block:"end"});
+    return d;
+}
+
+/* ═══════ STREAM (with multi-key rotation) ═══════ */
+async function streamGroqWithCallback(modelId,messagesArray,onToken,signal){
+    const keys = CONFIG.GROQ_API_KEYS;
+    if(!keys || keys.length === 0) throw new Error("No API keys available");
+
+    let lastError = null;
+    let response = null;
+    let successKeyIdx = -1;
+
+    for(let attempt = 0; attempt < keys.length; attempt++){
+        const keyIdx = (keyIndex + attempt) % keys.length;
+        const key = keys[keyIdx];
+        let r;
+        try{
+            r = await fetch(CONFIG.GROQ_API_URL,{
+                method:"POST",
+                headers:{"Authorization":`Bearer ${key}`,"Content-Type":"application/json"},
+                body:JSON.stringify({model:modelId,messages:messagesArray,temperature:0.7,max_tokens:8192,stream:true}),
+                signal:signal
+            });
+        }catch(fetchErr){
+            lastError = fetchErr;
+            continue;
+        }
+
+        if(r.ok){
+            response = r;
+            successKeyIdx = keyIdx;
+            break;
+        }
+
+        let errorText = "";
+        try { errorText = await r.text(); } catch(e) {}
+
+        if([401,403,429,500,502,503,504].includes(r.status)){
+            lastError = new Error(r.status===429||r.status===503 ? "QUOTA_EXCEEDED" : `HTTP ${r.status}: ${errorText.slice(0,200)}`);
+            continue;
+        }
+        throw new Error(`HTTP ${r.status}: ${errorText.slice(0,200)}`);
+    }
+
+    if(!response) throw lastError || new Error("All API keys failed");
+
+    keyIndex = (successKeyIdx + 1) % keys.length;
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+    while(true){
+        const {done,value} = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value,{stream:true});
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for(const line of lines){
+            const trimmed = line.trim();
+            if(!trimmed || trimmed === "data: [DONE]") continue;
+            if(trimmed.startsWith("data: ")){
+                try{
+                    const parsed = JSON.parse(trimmed.slice(6));
+                    const delta = parsed.choices?.[0]?.delta?.content;
+                    if(delta) onToken(delta);
+                }catch(e){}
+            }
+        }
+    }
+}
+
+/* ═══════ FETCH MODELS (with multi-key rotation) ═══════ */
+function isVisionModelId(id){
+    const lower=id.toLowerCase();
+    return lower.includes('vision') || lower.includes('llama-4-scout') || lower.includes('llama-4-maverick') || (lower.includes('llama-3.2') && lower.includes('vision'));
+}
+async function fetchModels(){
+    try{
+        const keys = CONFIG.GROQ_API_KEYS;
+        if(!keys || keys.length === 0) throw new Error("No API keys available");
+
+        let data = null;
+        let lastErr = null;
+        for(let attempt = 0; attempt < keys.length; attempt++){
+            const keyIdx = (keyIndex + attempt) % keys.length;
+            const key = keys[keyIdx];
+            let r;
+            try{
+                r = await fetch(CONFIG.GROQ_MODELS_URL,{headers:{"Authorization":`Bearer ${key}`}});
+            }catch(e){
+                lastErr = e;
+                continue;
+            }
+            if(!r.ok){
+                lastErr = new Error(`HTTP ${r.status}`);
+                continue;
+            }
+            try{
+                data = await r.json();
+            }catch(e){
+                lastErr = e;
+                continue;
+            }
+            keyIndex = (keyIdx + 1) % keys.length;
+            break;
+        }
+        if(!data) throw lastErr || new Error("Failed to fetch models with any API key");
+
+        const allModels=data.data||[];
+        const visionRaw=allModels.filter(m=>isVisionModelId(m.id));
+        const textRaw=allModels.filter(m=>{
+            const id=m.id.toLowerCase();
+            if(isVisionModelId(id)) return false;
+            return (id.includes('openai')||id==='groq-compound'||id==='groq/compound'||
+                (id.includes('llama')&&!id.includes('guard')&&!id.includes('prompt'))||
+                id.includes('qwen')) &&
+                !id.includes('compound-mini')&&!id.includes('whisper')&&!id.includes('canopy');
+        });
+        textRaw.sort((a,b)=>{
+            const pa=a.id.includes('openai')?1:a.id==='groq-compound'||a.id==='groq/compound'?2:a.id.includes('llama')?3:4;
+            const pb=b.id.includes('openai')?1:b.id==='groq-compound'||b.id==='groq/compound'?2:b.id.includes('llama')?3:4;
+            return pa-pb||a.id.localeCompare(b.id);
+        });
+        visionRaw.sort((a,b)=>{
+            const pa=a.id.includes('llama-4-scout')?1:a.id.includes('llama-4-maverick')?2:3;
+            const pb=b.id.includes('llama-4-scout')?1:b.id.includes('llama-4-maverick')?2:3;
+            return pa-pb||a.id.localeCompare(b.id);
+        });
+        availableModels=textRaw.map((m,idx)=>({id:m.id,displayName:`Freaken ${idx+1}`,isVision:false}));
+        visionModels=visionRaw.map((m,idx)=>({id:m.id,displayName:`Vision ${idx+1}`,isVision:true}));
+        if(availableModels.length>0){currentModelId=availableModels[0].id;currentModelDisplay=availableModels[0].displayName;}
+        else if(visionModels.length>0){currentModelId=visionModels[0].id;currentModelDisplay=visionModels[0].displayName;}
+    }catch(err){
+        throw err;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WIZARD
+   ═══════════════════════════════════════════════════════════ */
+function openSetup(){
+    wizardSubject=null;wizardPaper=null;wizardConstruct=null;wizardTopics=[];wizardStep=1;
+    renderWizard();
+    setupOverlay.classList.add('active');
+}
+function closeSetup(){setupOverlay.classList.remove('active');}
+function renderStepper(){
+    stepper.querySelectorAll('.step').forEach((el,i)=>{
+        el.classList.remove('active','done');
+        if(i+1<wizardStep) el.classList.add('done');
+        else if(i+1===wizardStep) el.classList.add('active');
+    });
+}
+function renderWizard(){
+    renderStepper();
+    setupBody.innerHTML='';setupFoot.innerHTML='';
+
+    if(wizardStep===1){
+        setupTitle.textContent='Choose a Subject';
+        setupSub.textContent='Select the UACE subject you want to be examined on.';
+        const grid=document.createElement('div');grid.className='choice-grid';
+        SUBJECTS.forEach(s=>{
+            const card=document.createElement('div');
+            card.className='choice-card'+(wizardSubject&&wizardSubject.id===s.id?' selected':'');
+            card.innerHTML=`
+                <div class="ico"><i class="fas ${s.icon}"></i></div>
+                <div class="info">
+                    <div class="title">${s.name}</div>
+                    <div class="desc">Code: ${s.code}</div>
+                </div>
+                <i class="fas fa-chevron-right chev"></i>`;
+            card.addEventListener('click',()=>{
+                wizardSubject=s;
+                const papers=getPapers(s.id);
+                if(papers.length===1){wizardPaper=papers[0];wizardStep=3;}
+                else wizardStep=2;
+                renderWizard();
+            });
+            grid.appendChild(card);
+        });
+        setupBody.appendChild(grid);
+        setupFoot.innerHTML=`<button class="setup-btn ghost" id="wizCancel"><i class="fas fa-times"></i> Cancel</button>`;
+        document.getElementById('wizCancel').addEventListener('click',()=>{closeSetup();if(!currentItemText) showWelcome();});
+    }
+    else if(wizardStep===2){
+        setupTitle.textContent='Choose a Paper';
+        setupSub.textContent=`${wizardSubject.name} has two papers. Select which one you want.`;
+        const grid=document.createElement('div');grid.className='choice-grid';
+        getPapers(wizardSubject.id).forEach(p=>{
+            const info = getPaperInfo(wizardSubject.id, p);
+            const card=document.createElement('div');
+            card.className='choice-card'+(wizardPaper===p?' selected':'');
+            card.innerHTML=`
+                <div class="ico"><i class="fas ${info.icon}"></i></div>
+                <div class="info">
+                    <div class="title">${info.name}</div>
+                    <div class="desc">${info.desc}</div>
+                </div>
+                <i class="fas fa-chevron-right chev"></i>`;
+            card.addEventListener('click',()=>{wizardPaper=p;wizardStep=3;renderWizard();});
+            grid.appendChild(card);
+        });
+        setupBody.appendChild(grid);
+        setupFoot.innerHTML=`<button class="setup-btn ghost" id="wizBack"><i class="fas fa-arrow-left"></i> Back</button>`;
+        document.getElementById('wizBack').addEventListener('click',()=>{wizardStep=1;renderWizard();});
+    }
+    else if(wizardStep===3){
+        const constructs = getConstructsFor(wizardSubject.id, wizardPaper);
+        setupTitle.textContent='Choose a Construct';
+        setupSub.textContent=`Select the construct you want to be examined on within ${wizardSubject.name}.`;
+        const grid=document.createElement('div');grid.className='choice-grid';
+        constructs.forEach(c=>{
+            const card=document.createElement('div');
+            const cls = wizardSubject.id==='p530' ? 'green' : (wizardSubject.id==='p525' ? 'gold' : (wizardSubject.id==='p510' ? 'purple' : ''));
+            card.className='choice-card '+cls+(wizardConstruct&&wizardConstruct.id===c.id?' selected':'');
+            card.innerHTML=`
+                <div class="ico"><i class="fas ${c.icon}"></i></div>
+                <div class="info">
+                    <div class="title">${c.title}</div>
+                    <div class="desc">${c.desc}</div>
+                </div>
+                <i class="fas fa-chevron-right chev"></i>`;
+            card.addEventListener('click',()=>{
+                wizardConstruct=c;
+                wizardTopics=[];
+                wizardStep=4;
+                renderWizard();
+            });
+            grid.appendChild(card);
+        });
+        setupBody.appendChild(grid);
+        setupFoot.innerHTML=`<button class="setup-btn ghost" id="wizBack"><i class="fas fa-arrow-left"></i> Back</button>`;
+        document.getElementById('wizBack').addEventListener('click',()=>{
+            wizardStep = getPapers(wizardSubject.id).length>1 ? 2 : 1;
+            renderWizard();
+        });
+    }
+    else if(wizardStep===4){
+        setupTitle.textContent='Select Topic(s)';
+        setupSub.textContent=`Choose one or more topics from "${wizardConstruct.title}". These will shape the item generated.`;
+        const wrap=document.createElement('div');
+        const search=document.createElement('input');
+        search.type='text';search.className='topic-search';
+        search.placeholder='Search topics…';
+        wrap.appendChild(search);
+        const chips=document.createElement('div');chips.className='topic-chips';
+        chips.id='topicChips';
+        const count=document.createElement('span');count.className='topic-chip-count';count.id='topicCount';
+        wrap.appendChild(chips);
+        wrap.appendChild(count);
+
+        function renderChips(filter=''){
+            chips.innerHTML='';
+            const list = wizardConstruct.topics.filter(t => t.toLowerCase().includes(filter.toLowerCase()));
+            list.forEach(t=>{
+                const chip=document.createElement('button');
+                chip.type='button';
+                chip.className='topic-chip'+(wizardTopics.includes(t)?' selected':'');
+                chip.textContent=t;
+                chip.addEventListener('click',()=>{
+                    if(wizardTopics.includes(t)){
+                        wizardTopics=wizardTopics.filter(x=>x!==t);
+                    } else {
+                        wizardTopics.push(t);
+                    }
+                    renderChips(search.value);
+                    updateCount();
+                });
+                chips.appendChild(chip);
+            });
+            if(list.length===0){
+                const msg=document.createElement('div');
+                msg.style.cssText='font-size:.75rem;color:#64748b;padding:8px 4px;';
+                msg.textContent='No matching topics.';
+                chips.appendChild(msg);
+            }
+        }
+        function updateCount(){
+            count.textContent = wizardTopics.length === 0
+                ? 'No topics selected — AI will choose appropriate topics from this construct.'
+                : `${wizardTopics.length} topic${wizardTopics.length>1?'s':''} selected.`;
+        }
+        search.addEventListener('input',()=>renderChips(search.value));
+        renderChips();
+        updateCount();
+        setupBody.appendChild(wrap);
+
+        const hint=document.createElement('div');
+        hint.className='topic-hint';
+        hint.innerHTML='<i class="fas fa-circle-info" style="color:#3b82f6;margin-right:5px;"></i>You can select multiple topics — the AI will weave them into the scenario. Leave blank to let the AI choose.';
+        setupBody.appendChild(hint);
+
+        setupFoot.innerHTML=`
+            <button class="setup-btn ghost" id="wizBack"><i class="fas fa-arrow-left"></i> Back</button>
+            <button class="setup-btn primary" id="wizNext">Continue <i class="fas fa-arrow-right"></i></button>`;
+        document.getElementById('wizBack').addEventListener('click',()=>{wizardStep=3;renderWizard();});
+        document.getElementById('wizNext').addEventListener('click',()=>{wizardStep=5;renderWizard();});
+    }
+    else{
+        setupTitle.textContent='Confirm & Generate';
+        setupSub.textContent='Review your selection. The AI will now write the examination item.';
+        const summary=document.createElement('div');summary.className='selected-summary';
+        const paperLine = getPapers(wizardSubject.id).length>1 ? ` — Paper ${wizardPaper}` : '';
+        const topicLine = wizardTopics.length===0 ? '(AI will choose from construct topics)' : wizardTopics.join(', ');
+        summary.innerHTML=`
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <b>${wizardSubject.name}</b>${paperLine}<br>
+                <span style="color:#94a3b8;font-size:.72rem;">Construct: ${wizardConstruct.title}</span><br>
+                <span style="color:#94a3b8;font-size:.72rem;">Topics: ${topicLine}</span>
+            </div>`;
+        setupBody.appendChild(summary);
+        const hint=document.createElement('div');
+        hint.style.cssText='font-size:.72rem;color:#64748b;line-height:1.55;padding:4px 2px;';
+        let hintTxt='You will get <b>one answer panel</b> with a slot for part <b>(a)</b> and part <b>(b)</b>. Attach <b>one photo per part</b>, then tap <b>Submit All Answers</b> once — marking and corrections are delivered together in one combined report.';
+        if(wizardSubject.id==='p530'){
+            hintTxt='Biology items follow the mock-paper format — scenario, data table, proposed interventions, and Task parts <b>(a)</b> and <b>(b)</b>. Attach <b>one photo per part</b>, then tap <b>Submit All Answers</b> once — the combined marking report and model responses are then produced in one go.';
+        }
+        hint.innerHTML=`<i class="fas fa-circle-info" style="color:#3b82f6;margin-right:5px;"></i>${hintTxt}`;
+        setupBody.appendChild(hint);
+        setupFoot.innerHTML=`
+            <button class="setup-btn ghost" id="wizBack"><i class="fas fa-arrow-left"></i> Back</button>
+            <button class="setup-btn primary" id="wizGenerate"><i class="fas fa-wand-magic-sparkles"></i> Generate Item</button>`;
+        document.getElementById('wizBack').addEventListener('click',()=>{wizardStep=4;renderWizard();});
+        document.getElementById('wizGenerate').addEventListener('click',()=>{
+            currentSubject=wizardSubject;currentPaper=wizardPaper;
+            currentConstruct=wizardConstruct;currentTopics=wizardTopics.slice();
+            closeSetup();updateUI();generateItem();
+        });
+    }
+}
+
+/* ═══════ WELCOME ═══════ */
+function showWelcome(){
+    chatContainer.innerHTML='';
+    addMessage(`# Welcome to Freaken Item Bank
+
+This tool generates **competency-based UACE examination items** in the exact style of the UNEB 2026 Sample Papers and the compiled mock papers, and marks your work **in one combined pass**.
+
+**Subjects available:**
+- **Principal Mathematics (P425/1 & P425/2)**
+- **Physics (P510/1)**
+- **Chemistry (P525/1)**
+- **Biology (P530/1)**
+
+**Flow:** Subject → Paper → Construct → Topic(s) → Generate → **Attach one photo for part (a) and one photo for part (b)** in one combined panel → **Submit All Answers once** → combined marking report → combined model responses.`,'bot');
+
+    const btnWrap=document.createElement('div');
+    btnWrap.className='final-action-bar';
+    btnWrap.innerHTML=`
+        <div class="bar-label"><i class="fas fa-play" style="color:#3b82f6;"></i> Get started</div>
+        <button type="button" class="answer-action-btn primary" id="welcomeNewItem"><i class="fas fa-wand-magic-sparkles"></i> Generate New Item</button>
+        <button type="button" class="answer-action-btn ghost" id="welcomeChangeSetup"><i class="fas fa-sliders"></i> Change Subject / Paper</button>`;
+    chatContainer.appendChild(btnWrap);
+    document.getElementById('welcomeNewItem').addEventListener('click',()=>openSetup());
+    document.getElementById('welcomeChangeSetup').addEventListener('click',()=>openSetup());
+}
+
+/* ═══════ PART PARSER (Robust, 2-part cap) ═══════ */
+function extractParts(itemText){
+    if(!itemText) return [];
+
+    const taskMatch = itemText.match(/(?:^|\n)[\s*_#-]*Task[\s*_#-]*:?[\s*_#-]*\n/i);
+    let body = taskMatch ? itemText.substring(taskMatch.index + taskMatch[0].length) : itemText;
+
+    const re = /(?:^|\n)[\s*_#-]*\(([a-z])\)[\s*_#-]*/gi;
+    let found = [];
+    let m;
+
+    while((m = re.exec(body)) !== null){
+        const label = m[1].toLowerCase();
+        if(['a','b','c','d'].includes(label)){
+            found.push({ label: label, markerStart: m.index, markerEnd: m.index + m[0].length });
+        }
+    }
+
+    if(found.length === 0 && taskMatch){
+        body = itemText;
+        re.lastIndex = 0;
+        while((m = re.exec(body)) !== null){
+            const label = m[1].toLowerCase();
+            if(['a','b','c','d'].includes(label)){
+                found.push({ label: label, markerStart: m.index, markerEnd: m.index + m[0].length });
+            }
+        }
+    }
+
+    if(found.length === 0) return [];
+
+    const uniqueFound = [];
+    const seen = new Set();
+    for(const f of found){
+        if(!seen.has(f.label)){
+            seen.add(f.label);
+            uniqueFound.push(f);
+        }
+    }
+
+    const parts = [];
+    for(let i = 0; i < uniqueFound.length; i++){
+        const end = i + 1 < uniqueFound.length ? uniqueFound[i + 1].markerStart : body.length;
+        const text = body.substring(uniqueFound[i].markerEnd, end).trim();
+        if(text.length > 0) parts.push({ label: uniqueFound[i].label, text });
+    }
+
+    // Hard cap at two parts — the vision analyzer accepts a maximum of 2 images.
+    // If the model ever produces more than (a) and (b), fold the excess into (b).
+    if(parts.length > 2){
+        const partA = parts.find(p=>p.label === 'a');
+        const partB = parts.find(p=>p.label === 'b');
+        const extras = parts.filter(p=>p.label !== 'a' && p.label !== 'b');
+        if(partB && extras.length > 0){
+            partB.text += '\n\n' + extras.map(p=>p.text).join('\n\n');
+        }
+        return [partA, partB].filter(Boolean);
+    }
+
+    return parts;
+}
+
+/* ═══════ GENERATE ITEM ═══════ */
+async function generateItem(){
+    if(isWaiting) return;
+    if(!canSend()){pendingPopupCallback=generateItem;return;}
+    if(!currentSubject||!currentPaper||!currentConstruct){openSetup();return;}
+    if(availableModels.length===0){showToast('No models available.',3000,'warning');return;}
+
+    isWaiting=true;
+    currentItemText=null;
+    currentParts=[];
+    partImages={};
+    allPartsMarked=false;
+    allGuidesShown=false;
+
+    chatContainer.innerHTML='';
+    updateUI();
+
+    const typingDiv=showTyping();
+    const itemMsg=document.createElement('div');
+    itemMsg.className='msg bot';
+    chatContainer.appendChild(itemMsg);
+    const body=document.createElement('div');
+    body.innerHTML=`<div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:.8rem;"><span class="loader"></span> Writing examination item…</div>`;
+    itemMsg.appendChild(body);
+    typingDiv.remove();
+
+    let systemPrompt, userPrompt;
+    const topicsLine = currentTopics.length===0
+        ? `Topics: choose appropriate topics from the construct — ${currentConstruct.topics.join(', ')}.`
+        : `Topics to weave into the item (at least a few of these): ${currentTopics.join(', ')}.`;
+
+    if(isPhysics()){
+        systemPrompt = PHYSICS_GENERATE_PROMPT;
+        userPrompt = `Generate ONE complete Physics Paper 1 (Theory) item for UACE P510/1.
+
+Subject: Physics (P510/1)
+Construct: ${currentConstruct.title} — ${currentConstruct.desc}
+${topicsLine}
+
+REMINDER: Provide ALL constants (g, h, e, c, μ₀, ε₀, etc.). Data table with caption "Table X: ...". Task: with EXACTLY 2 parts — (a) and (b) only, NO (c). Fold any former third-part content (design/evaluation/recommendation/justification) into (a) or (b). USE ONLY (a) and (b). Output the item only.`;
+    }
+    else if(isMath()){
+        systemPrompt = MATH_GENERATE_PROMPT;
+        const paperName = currentPaper===1 ? 'Paper 1 (Algebra, Geometry, Calculus)' : 'Paper 2 (Numerical Analysis, Data Analysis & Probability, Mechanics)';
+        userPrompt = `Generate ONE complete Principal Mathematics item for UACE P425/${currentPaper} (${paperName}).
+
+Subject: Principal Mathematics (P425/${currentPaper})
+Construct: ${currentConstruct.title} — ${currentConstruct.desc}
+${topicsLine}
+
+REMINDER: Data table with caption "Table X: ...". Task: with EXACTLY 2 parts — (a) and (b) only, NO (c). Fold any former third-part content (evaluate/recommend/justify) into (a) or (b). USE ONLY (a) and (b). Output the item only.`;
+    }
+    else if(isChem()){
+        systemPrompt = CHEM_GENERATE_PROMPT;
+        userPrompt = `Generate ONE complete Chemistry Paper 1 item for UACE P525/1.
+
+Subject: Chemistry (P525/1)
+Construct: ${currentConstruct.title} — ${currentConstruct.desc}
+${topicsLine}
+
+REMINDER: Data table with caption. "Given the following data:" section. Task: with EXACTLY 2 parts — (a) and (b) only, NO (c). Fold any former third-part content (suitability/mitigation) into (a) or (b). Show balanced equations and mechanisms. Output the item only.`;
+    }
+    else if(isBiology()){
+        systemPrompt = BIO_GENERATE_PROMPT;
+        userPrompt = `Generate ONE complete Biology item for UACE P530/1 in the EXACT format of the UACE Biology Paper 1 mock papers.
+
+Subject: Biology (P530/1)
+Construct: ${currentConstruct.title} — ${currentConstruct.desc}
+${topicsLine}
+
+REMINDER — STRUCTURE EXACTLY:
+- Scenario set in Uganda with a named character
+- Data table with caption "Table X: ..." comparing affected vs normal groups (units in headers)
+- Scenario MUST end with 2–3 specific PROPOSED INTERVENTIONS
+- Task: with EXACTLY TWO parts (a) and (b):
+   (a) Analyse/Explain the information/data provided to explain how [condition] affected [parameters] leading to [observed effects].
+   (b) Evaluate/Assess the effectiveness of the proposed interventions.
+- USE ONLY (a), (b). NEVER (i), (ii), (iii), (c) or (d).
+- NO calculations. NO biochemical pathways.
+- Output the item only.`;
+    }
+
+    let accumulated='';
+    let renderTimeout=null;
+    function streamRender(){
+        const processed=processBotText(accumulated);
+        body.innerHTML=formatMarkdown(processed)+'<span class="streaming-caret"></span>';
+        renderLatex(body);
+        if(chatContainer.scrollHeight-chatContainer.scrollTop-chatContainer.clientHeight<200) chatContainer.scrollTop=chatContainer.scrollHeight;
+    }
+
+    let success=false;
+    for(const model of availableModels.slice()){
+        currentModelId=model.id;currentModelDisplay=model.displayName;
+        accumulated='';
+        try{
+            body.innerHTML=`<div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:.8rem;"><span class="loader"></span> Writing examination item…</div>`;
+            await streamGroqWithCallback(model.id,[
+                {role:'system',content:systemPrompt},
+                {role:'user',content:userPrompt}
+            ],(token)=>{
+                accumulated+=token;
+                if(renderTimeout) clearTimeout(renderTimeout);
+                renderTimeout=setTimeout(()=>{streamRender();renderTimeout=null;},120);
+            },null);
+            if(renderTimeout) clearTimeout(renderTimeout);
+            if(accumulated&&accumulated.trim().length>=MIN_REPLY_LENGTH){success=true;break;}
+        }catch(err){accumulated='';}
+    }
+
+    if(!success){
+        body.innerHTML='<div style="color:#f87171;"><i class="fas fa-exclamation-triangle"></i> Failed to generate. Please try again.</div>';
+        isWaiting=false;updateUI();return;
+    }
+
+    currentItemText=accumulated;
+    body.innerHTML=formatMarkdown(processBotText(accumulated));
+    body.setAttribute('data-raw-text',accumulated);
+    renderLatex(body);
+    highlightCode(body);
+    addCodeCopyButtons(body);
+    addMessageActions(itemMsg,accumulated);
+
+    if(userState==='free'){incrementRequest();}
+
+    currentParts = extractParts(currentItemText);
+    if(currentParts.length===0){
+        currentParts = [{label:'a',text:'Attempt the task above as directed.'}];
+    }
+
+    showCombinedAnswerPanel();
+    appendOptionsFooter();
+
+    isWaiting=false;
+    updateUI();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMBINED ANSWER PANEL — one panel, one photo slot per part
+   (guaranteed max two parts: a and b)
+   ═══════════════════════════════════════════════════════════ */
+function showCombinedAnswerPanel(){
+    chatContainer.querySelectorAll('[data-combined-panel]').forEach(el=>el.remove());
+
+    const panel=document.createElement('div');
+    panel.className='answer-panel';
+    panel.id='combinedAnswerPanel';
+    panel.setAttribute('data-combined-panel','1');
+
+    let partsHtml='';
+    currentParts.forEach(part=>{
+        partsHtml+=`
+            <div class="answer-part-block${partImages[part.label]?' has-image':''}" data-part-block="${part.label}">
+                <div class="apb-title">
+                    <i class="fas fa-pen-to-square"></i> Part (${part.label})
+                    <span class="apb-status" data-status="${part.label}">${partImages[part.label]?'✓ Photo attached':'Awaiting photo'}</span>
+                </div>
+                <div class="part-preview">${formatMarkdown(processBotText(part.text))}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px;">
+                    <button type="button" class="answer-action-btn gold" data-attach-for="${part.label}"><i class="fas fa-camera"></i> Attach Photo for Part (${part.label})</button>
+                </div>
+                <div class="img-preview-wrap" id="imgPreviewWrap-${part.label}" style="margin-top:8px;"></div>
+            </div>
+        `;
+    });
+
+    panel.innerHTML=`
+        <div class="answer-panel-title">
+            <i class="fas fa-camera"></i> Answer Parts (a) &amp; (b) — One Photo Each
+        </div>
+        <div style="font-size:.72rem;color:#94a3b8;margin-bottom:10px;line-height:1.5;">
+            <i class="fas fa-circle-info" style="color:#f5b342;margin-right:4px;"></i>
+            Write each part on paper, then <b>attach one photo for (a) and one photo for (b)</b>. When both photos are ready, tap <b>Submit All Answers</b> — marking and corrections are produced <b>once for both parts together</b>.
+        </div>
+        ${partsHtml}
+        <div style="margin-top:12px;">
+            <button type="button" class="answer-action-btn primary" data-submit-all="1" disabled style="width:100%;padding:14px;font-size:.85rem;">
+                <i class="fas fa-check-double"></i> Submit All Answers
+            </button>
+        </div>
+    `;
+    chatContainer.appendChild(panel);
+    renderLatex(panel);
+
+    currentParts.forEach(part=>{
+        if(partImages[part.label]) renderPartImagePreview(part.label, partImages[part.label].dataUrl);
+    });
+
+    updateSubmitAllButton();
+    panel.scrollIntoView({behavior:'smooth',block:'end'});
+}
+
+function updateSubmitAllButton(){
+    const btn=document.querySelector('[data-submit-all]');
+    if(!btn) return;
+    const hasAny=Object.keys(partImages).length>0;
+    btn.disabled=!hasAny || allPartsMarked;
+    if(allPartsMarked){
+        btn.innerHTML='<i class="fas fa-check"></i> Already Submitted';
+    }
+}
+
+function renderPartImagePreview(label,dataUrl){
+    const wrap=document.getElementById(`imgPreviewWrap-${label}`);
+    const attachBtn=document.querySelector(`[data-attach-for="${label}"]`);
+    const status=document.querySelector(`[data-status="${label}"]`);
+    const block=document.querySelector(`[data-part-block="${label}"]`);
+    if(!wrap) return;
+    wrap.innerHTML='';
+    if(!dataUrl){
+        if(attachBtn) attachBtn.classList.remove('active');
+        if(status) status.textContent='Awaiting photo';
+        if(block) block.classList.remove('has-image');
+        updateSubmitAllButton();
+        return;
+    }
+    const p=document.createElement('div');p.className='img-preview';
+    p.style.width='100px';p.style.height='100px';
+    const im=document.createElement('img');im.src=dataUrl;im.alt='answer';
+    im.addEventListener('click',()=>openImagePopup(dataUrl,`Part (${label}) answer`));
+    const rm=document.createElement('button');rm.type='button';rm.className='rm';rm.innerHTML='<i class="fas fa-times"></i>';
+    rm.addEventListener('click',ev=>{ev.stopPropagation();delete partImages[label];renderPartImagePreview(label,null);});
+    p.appendChild(im);p.appendChild(rm);
+    wrap.appendChild(p);
+    if(attachBtn) attachBtn.classList.add('active');
+    if(status) status.textContent='✓ Photo attached';
+    if(block) block.classList.add('has-image');
+    updateSubmitAllButton();
+}
+
+/* ═══════ OPTIONS FOOTER (New Item / Change Subject) ═══════ */
+function appendOptionsFooter(){
+    chatContainer.querySelectorAll('[data-options-footer]').forEach(el=>el.remove());
+    const footer=document.createElement('div');
+    footer.className='final-action-bar';
+    footer.setAttribute('data-options-footer','1');
+    footer.innerHTML=`
+        <div class="bar-label"><i class="fas fa-sliders" style="color:#64748b;"></i> Options</div>
+        <button type="button" class="answer-action-btn ghost" data-action="new-item"><i class="fas fa-wand-magic-sparkles"></i> New Item</button>
+        <button type="button" class="answer-action-btn ghost" data-action="change-setup"><i class="fas fa-sliders"></i> Change Subject / Paper</button>`;
+    chatContainer.appendChild(footer);
+}
+
+/* ═══════ SUBMIT ALL ANSWERS — one combined marking call (max 2 images) ═══════ */
+async function submitAllAnswers(){
+    if(isWaiting){showToast('Please wait…',2500,'warning');return;}
+    if(allPartsMarked){showToast('All parts are already marked.',2500,'warning');return;}
+    if(!canSend()){pendingPopupCallback=submitAllAnswers;return;}
+
+    const answeredParts=currentParts.filter(p=>partImages[p.label]);
+    if(answeredParts.length===0){
+        showToast('Attach at least one photo before submitting.',3000,'warning');
+        return;
+    }
+
+    isWaiting=true;
+    const submitBtn=document.querySelector('[data-submit-all]');
+    if(submitBtn){submitBtn.disabled=true;submitBtn.innerHTML='<span class="btn-spinner"></span> Submitting…';}
+
+    answeredParts.forEach(part=>{
+        const img=partImages[part.label];
+        const userDiv=document.createElement('div');
+        userDiv.className='msg user';
+        const p=document.createElement('div');
+        p.textContent=`Part (${part.label}) — photo of work`;
+        userDiv.appendChild(p);
+        const im=document.createElement('img');
+        im.src=img.dataUrl;
+        im.style.maxWidth='100%';im.style.borderRadius='10px';im.style.marginTop='6px';im.style.cursor='pointer';
+        im.addEventListener('click',()=>openImagePopup(img.dataUrl,`Part (${part.label}) answer`));
+        userDiv.appendChild(im);
+        chatContainer.appendChild(userDiv);
+    });
+    chatContainer.scrollTop=chatContainer.scrollHeight;
+
+    const extractionResults=await Promise.all(answeredParts.map(async part=>{
+        const extracted=await silentVisionExtract(partImages[part.label].dataUrl,currentItemText);
+        return { label: part.label, extracted };
+    }));
+    const transcriptions={};
+    extractionResults.forEach(r=>{ transcriptions[r.label]=r.extracted; });
+
+    const allExtracted=answeredParts.every(p=>transcriptions[p.label]);
+    const useImage=!allExtracted;
+
+    let answersSection='';
+    answeredParts.forEach(part=>{
+        const ext=transcriptions[part.label];
+        answersSection+=`\n\n═══ PART (${part.label}) ANSWER ═══\n\n`;
+        answersSection+= ext
+            ? `### Transcribed Work From Attached Photo\n\n${ext}`
+            : `(Answer provided as image — read the image directly.)`;
+    });
+
+    const labelsList=answeredParts.map(p=>p.label).join(', ');
+    const userText=`═══ EXAMINATION ITEM ═══
+
+${currentItemText}
+
+═══ ANSWERS TO MARK ═══
+
+Mark ALL of the following parts in ONE combined report: (${labelsList}). Give a complete marking report for EACH part as specified. Do NOT skip any part.${answersSection}`;
+
+    const typingDiv=showTyping();
+    const markMsg=document.createElement('div');
+    markMsg.className='msg bot';
+    chatContainer.appendChild(markMsg);
+    const body=document.createElement('div');
+    body.innerHTML=`<div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:.8rem;"><span class="loader"></span> Marking all parts…</div>`;
+    markMsg.appendChild(body);
+    typingDiv.remove();
+    markMsg.scrollIntoView({behavior:'smooth',block:'end'});
+
+    let tryList;
+    if(useImage){
+        tryList = visionModels.length>0
+            ? visionModels.concat(availableModels.filter(m=>!visionModels.find(v=>v.id===m.id)))
+            : availableModels.slice();
+    } else {
+        tryList = availableModels.slice();
+        if(tryList.length===0) tryList=visionModels.slice();
+    }
+    if(tryList.length===0){
+        body.innerHTML='<div style="color:#f87171;">No models available.</div>';
+        if(submitBtn){submitBtn.disabled=false;submitBtn.innerHTML='<i class="fas fa-check-double"></i> Submit All Answers';}
+        isWaiting=false;return;
+    }
+
+    const markSystem = isBiology() ? MULTI_BIO_MARKING_PROMPT : MULTI_MARKING_SYSTEM_PROMPT;
+
+    const imageContents=[{type:'text',text:userText}];
+    if(useImage){
+        answeredParts.forEach(part=>{
+            imageContents.push({type:'text',text:`Attached image for Part (${part.label}):`});
+            imageContents.push({type:'image_url',image_url:{url:partImages[part.label].dataUrl}});
+        });
+    }
+
+    let accumulated='';
+    let renderTimeout=null;
+    let success=false;
+    function streamRender(){
+        const processed=processBotText(accumulated);
+        body.innerHTML=formatMarkdown(processed)+'<span class="streaming-caret"></span>';
+        renderLatex(body);
+        if(chatContainer.scrollHeight-chatContainer.scrollTop-chatContainer.clientHeight<200) chatContainer.scrollTop=chatContainer.scrollHeight;
+    }
+
+    for(const model of tryList){
+        accumulated='';
+        try{
+            body.innerHTML=`<div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:.8rem;"><span class="loader"></span> Marking all parts…</div>`;
+            const messages=[
+                {role:'system',content:markSystem},
+                {role:'user',content: useImage ? imageContents : userText}
+            ];
+            await streamGroqWithCallback(model.id,messages,(token)=>{
+                accumulated+=token;
+                if(renderTimeout) clearTimeout(renderTimeout);
+                renderTimeout=setTimeout(()=>{streamRender();renderTimeout=null;},120);
+            },null);
+            if(renderTimeout) clearTimeout(renderTimeout);
+            if(accumulated&&accumulated.trim().length>=MIN_REPLY_LENGTH){success=true;break;}
+        }catch(err){accumulated='';}
+    }
+
+    if(!success){
+        body.innerHTML='<div style="color:#f87171;"><i class="fas fa-exclamation-triangle"></i> Marking failed. Please try again.</div>';
+        if(submitBtn){submitBtn.disabled=false;submitBtn.innerHTML='<i class="fas fa-check-double"></i> Submit All Answers';}
+        isWaiting=false;return;
+    }
+
+    allPartsMarked=true;
+    if(userState==='free'){incrementRequest();}
+    body.innerHTML=formatMarkdown(processBotText(accumulated));
+    body.setAttribute('data-raw-text',accumulated);
+    renderLatex(body);
+    highlightCode(body);
+    addCodeCopyButtons(body);
+    addMessageActions(markMsg,accumulated);
+
+    if(submitBtn){submitBtn.disabled=true;submitBtn.innerHTML='<i class="fas fa-check"></i> Marked';}
+
+    appendCombinedActions(false);
+    isWaiting=false;
+    updateUI();
+}
+
+/* ═══════ SHOW COMBINED MODEL RESPONSES (scoring guides for all parts) ═══════ */
+async function showCombinedModelResponses(){
+    if(isWaiting){showToast('Please wait…',2500,'warning');return;}
+    if(allGuidesShown){showToast('Model responses already shown.',2500,'warning');return;}
+    if(!canSend()){pendingPopupCallback=showCombinedModelResponses;return;}
+
+    isWaiting=true;
+    const btn=document.querySelector('[data-see-models-all]');
+    if(btn){btn.disabled=true;btn.innerHTML='<span class="btn-spinner"></span> Loading…';}
+
+    const typingDiv=showTyping();
+    const guideMsg=document.createElement('div');
+    guideMsg.className='msg bot';
+    chatContainer.appendChild(guideMsg);
+    const body=document.createElement('div');
+    body.innerHTML=`<div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:.8rem;"><span class="loader"></span> Writing model answers for all parts…</div>`;
+    guideMsg.appendChild(body);
+    typingDiv.remove();
+    guideMsg.scrollIntoView({behavior:'smooth',block:'end'});
+
+    const labelsList=currentParts.map(p=>p.label).join(', ');
+    const userContent=`Here is the examination item. Produce COMPLETE OFFICIAL SCORING GUIDES for ALL parts (${labelsList}) in ONE combined response. Do NOT skip any part.
+
+═══ EXAMINATION ITEM ═══
+
+${currentItemText}`;
+
+    const guideSystem = isBiology() ? MULTI_BIO_SCORING_GUIDE_PROMPT : MULTI_SCORING_GUIDE_SYSTEM_PROMPT;
+    const messages=[{role:'system',content:guideSystem},{role:'user',content:userContent}];
+
+    let accumulated='';
+    let renderTimeout=null;
+    let success=false;
+    function streamRender(){
+        const processed=processBotText(accumulated);
+        body.innerHTML=formatMarkdown(processed)+'<span class="streaming-caret"></span>';
+        renderLatex(body);
+        if(chatContainer.scrollHeight-chatContainer.scrollTop-chatContainer.clientHeight<200) chatContainer.scrollTop=chatContainer.scrollHeight;
+    }
+
+    const tryList=availableModels.length>0?availableModels:visionModels;
+    for(const model of tryList){
+        accumulated='';
+        try{
+            body.innerHTML=`<div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:.8rem;"><span class="loader"></span> Writing model answers for all parts…</div>`;
+            await streamGroqWithCallback(model.id,messages,(token)=>{
+                accumulated+=token;
+                if(renderTimeout) clearTimeout(renderTimeout);
+                renderTimeout=setTimeout(()=>{streamRender();renderTimeout=null;},120);
+            },null);
+            if(renderTimeout) clearTimeout(renderTimeout);
+            if(accumulated&&accumulated.trim().length>=MIN_REPLY_LENGTH){success=true;break;}
+        }catch(err){accumulated='';}
+    }
+
+    if(!success){
+        body.innerHTML='<div style="color:#f87171;"><i class="fas fa-exclamation-triangle"></i> Could not load model responses.</div>';
+        if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-lightbulb"></i> See Model Responses for All Parts';}
+        isWaiting=false;return;
+    }
+
+    allGuidesShown=true;
+    if(userState==='free'){incrementRequest();}
+    body.innerHTML=formatMarkdown(processBotText(accumulated));
+    body.setAttribute('data-raw-text',accumulated);
+    renderLatex(body);
+    highlightCode(body);
+    addCodeCopyButtons(body);
+    addMessageActions(guideMsg,accumulated);
+
+    appendCombinedActions(true);
+    isWaiting=false;
+    updateUI();
+}
+
+/* ═══════ COMBINED ACTION BAR ═══════ */
+function appendCombinedActions(guidesShown){
+    chatContainer.querySelectorAll('[data-final-actions]').forEach(el=>el.remove());
+
+    const actions=document.createElement('div');
+    actions.className='final-action-bar';
+    actions.setAttribute('data-final-actions','1');
+
+    let html='';
+
+    if(!allPartsMarked){
+        html+=`<div class="bar-label"><i class="fas fa-camera" style="color:#f5b342;"></i> Next steps</div>`;
+        html+=`<button type="button" class="answer-action-btn primary" data-action="new-item"><i class="fas fa-wand-magic-sparkles"></i> New Item</button>`;
+        html+=`<button type="button" class="answer-action-btn ghost" data-action="change-setup"><i class="fas fa-sliders"></i> Change Subject / Paper</button>`;
+    } else if(!allGuidesShown && !guidesShown){
+        html+=`<div class="bar-label"><i class="fas fa-arrow-right" style="color:#3b82f6;"></i> Next steps</div>`;
+        html+=`<button type="button" class="answer-action-btn gold" data-see-models-all="1"><i class="fas fa-lightbulb"></i> See Model Responses for All Parts</button>`;
+        html+=`<button type="button" class="answer-action-btn primary" data-action="new-item"><i class="fas fa-wand-magic-sparkles"></i> New Item</button>`;
+        html+=`<button type="button" class="answer-action-btn ghost" data-action="change-setup"><i class="fas fa-sliders"></i> Change Subject / Paper</button>`;
+    } else {
+        html+=`<div class="bar-label"><i class="fas fa-check-circle" style="color:#34c759;"></i> All tasks complete</div>`;
+        html+=`<button type="button" class="answer-action-btn primary" data-action="new-item"><i class="fas fa-wand-magic-sparkles"></i> New Item</button>`;
+        html+=`<button type="button" class="answer-action-btn ghost" data-action="change-setup"><i class="fas fa-sliders"></i> Change Subject / Paper</button>`;
+    }
+
+    actions.innerHTML=html;
+    chatContainer.appendChild(actions);
+    actions.scrollIntoView({behavior:'smooth',block:'end'});
+}
+
+/* ═══════ EVENT DELEGATION ═══════ */
+document.addEventListener('click',(e)=>{
+    const target=e.target.closest('[data-action], [data-attach-for], [data-submit-all], [data-see-models-all]');
+    if(!target) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    if(target.hasAttribute('data-submit-all')){
+        if(target.disabled) return;
+        submitAllAnswers();
+        return;
+    }
+    if(target.hasAttribute('data-attach-for')){
+        if(allPartsMarked){showToast('Answers already submitted.',2500,'warning');return;}
+        currentAttachTargetLabel=target.getAttribute('data-attach-for');
+        fileInput.click();
+        return;
+    }
+    if(target.hasAttribute('data-see-models-all')){
+        if(target.disabled) return;
+        showCombinedModelResponses();
+        return;
+    }
+    const action=target.getAttribute('data-action');
+    if(action==='new-item'||action==='change-setup'){openSetup();}
+});
+
+/* ═══════ SILENT VISION EXTRACTION ═══════ */
+async function silentVisionExtract(imageDataUrl, itemText){
+    let visionList = visionModels.slice();
+    if(visionList.length === 0) return null;
+    const VISION_EXTRACTION_PROMPT = `You are an expert OCR and handwriting transcription assistant for UNEB UACE examinations.
+
+Read the uploaded image of a student's answer and transcribe EVERYTHING into clean Markdown.
+
+RULES:
+1. Transcribe ALL text verbatim.
+2. Transcribe ALL mathematics using $...$ inline math.
+3. Transcribe ALL chemical formulae: $CO_2$, $H_2SO_4$.
+4. Transcribe ALL tables as Markdown tables.
+5. Transcribe ALL diagrams by describing axes, labels, values, shapes.
+6. Note unclear parts as "[unclear: best guess is ...]".
+7. Do NOT mark or grade. Only transcribe.
+8. Output ONLY the transcribed content starting with "# Transcribed Candidate Answer".
+
+If completely unreadable, reply exactly: "UNREADABLE_IMAGE".`;
+
+    for(const model of visionList){
+        const messages = [
+            { role:'system', content: VISION_EXTRACTION_PROMPT },
+            { role:'user', content: [
+                { type:'text', text: `Examination item the student answered:\n\n${itemText||'(item unavailable)'}\n\nTranscribe everything in the student's answer image below.` },
+                { type:'image_url', image_url: { url: imageDataUrl } }
+            ]}
+        ];
+        let extracted='';
+        try{ await streamGroqWithCallback(model.id, messages, (token)=>{extracted+=token;}, null); }
+        catch(err){continue;}
+        const trimmed=extracted.trim();
+        if(!trimmed||trimmed.length<10) continue;
+        if(trimmed.toUpperCase().includes('UNREADABLE_IMAGE')) continue;
+        return trimmed;
+    }
+    return null;
+}
+
+/* ═══════ FILE INPUT ═══════ */
+fileInput.addEventListener('change',e=>{
+    const f=e.target.files[0];if(!f) return;
+    if(!f.type.startsWith('image/')){showToast('Please select an image.',3000,'warning');return;}
+    if(f.size>6*1024*1024){showToast('Image too large (max 6 MB).',3000,'warning');return;}
+    const reader=new FileReader();
+    reader.onload=()=>{
+        const label=currentAttachTargetLabel;
+        if(!label){showToast('No part selected.',3000,'warning');return;}
+        partImages[label]={dataUrl:reader.result};
+        renderPartImagePreview(label,reader.result);
+        showToast(`📷 Photo attached for Part (${label}).`,'success',2000);
+    };
+    reader.readAsDataURL(f);
+    fileInput.value='';
+});
+
+/* ═══════ PREMIUM ═══════ */
+loginBtn.addEventListener('click',()=>showPopup('premium','Upgrade for unlimited access.',false));
+premiumCloseBtn.addEventListener('click',()=>{hidePopup();if(!userState) setTimeout(()=>showPopup('firstLaunch','',false),200);});
+premiumCancelBtn.addEventListener('click',()=>{hidePopup();if(!userState) setTimeout(()=>showPopup('firstLaunch','',false),200);});
+premiumFreeBtn.addEventListener('click',handleFreeTrial);
+premiumSubmitBtn.addEventListener('click',handlePremiumSubmit);
+premiumCodeInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();handlePremiumSubmit();}});
+premiumWhatsAppBtn.addEventListener('click',()=>{
+    const m=encodeURIComponent('Hello, I would like to subscribe for a premium code.');
+    window.open(`https://wa.me/${WHATSAPP_NUMBERS[0]}?text=${m}`,'_blank');
+});
+
+/* ═══════ INIT ═══════ */
+async function init(){
+    try{
+        CONFIG.GROQ_API_KEYS=await fetchGroqApiKeys();
+        await Promise.all([fetchSubscriptions(),fetchModels()]);
+        loaderOverlay.classList.add('hidden');
+        loadState();
+        await refreshUserState();
+        showWelcome();
+        setTimeout(()=>{if(!setupOverlay.classList.contains('active')&&!premiumOverlay.classList.contains('active')) openSetup();},400);
+    }catch(err){
+        console.error(err);
+        loaderError.classList.add('show');
+        loaderOverlay.classList.remove('hidden');
+    }
+}
+init();
+</script>
+</body>
+</html>
