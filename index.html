@@ -565,6 +565,43 @@ main{
 }
 
 /* ══════════════════════════════════════════════════════════
+   FLOATING GEN BUTTON (Above AI)
+   ══════════════════════════════════════════════════════════ */
+.gen-fab{
+  position:fixed;
+  right:5px;
+  bottom:calc(77px + env(safe-area-inset-bottom)); /* 5px + 68px + 4px gap */
+  width:68px;height:68px;
+  border:0;background:transparent;
+  border-radius:50%;
+  display:grid;place-items:center;
+  cursor:pointer;
+  z-index:900;
+  padding:0;
+  animation:aiDance 3s ease-in-out infinite;
+  transform-origin:50% 60%;
+  will-change:transform;
+}
+.gen-fab:active{animation-play-state:paused;}
+
+.gen-core{
+  position:relative;
+  width:56px;height:56px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#0a84ff;
+  box-shadow:none;
+  overflow:hidden;
+  color: #fff;
+  font-size: 24px;
+  transition: transform .15s, background .15s;
+}
+
+.gen-fab:active .gen-core{
+  background:#0060df;
+  transform: scale(0.9);
+}
+
+/* ══════════════════════════════════════════════════════════
    FLOATING AI BUTTON — SOLID BLUE, NO GLOW, ICON INSIDE
    ══════════════════════════════════════════════════════════ */
 .ai-fab{
@@ -653,6 +690,17 @@ main{
   .doc-card{gap:10px;padding:9px;}
   .doc-name{font-size:13.5px;}
   .large-title{font-size:30px;}
+  
+  /* Scale down both floating buttons */
+  .gen-fab{
+    width:62px;height:62px;
+    bottom:calc(71px + env(safe-area-inset-bottom)); /* 5 + 62 + 4 */
+  }
+  .gen-core{
+    width:51px;height:51px;
+    font-size:22px;
+  }
+
   .ai-fab{width:62px;height:62px;}
   .ai-core{width:51px;height:51px;}
   .ai-icon{width:25px;height:25px;}
@@ -728,6 +776,13 @@ main{
   </div>
 </div>
 
+<!-- ══════════ FLOATING GEN BUTTON (4px above AI) ══════════ -->
+<button class="gen-fab" id="genFab" aria-label="Open Generator">
+  <span class="gen-core">
+    <i class="fas fa-book-open"></i>
+  </span>
+</button>
+
 <!-- ══════════ FLOATING AI BUTTON ══════════ -->
 <button class="ai-fab" id="aiFab" aria-label="Open AI Assistant">
   <span class="ai-core">
@@ -769,6 +824,7 @@ const docDropdownBox    = document.getElementById('docDropdownBox');
 const ddDownload        = document.getElementById('ddDownload');
 const ddBack            = document.getElementById('ddBack');
 const ddAi              = document.getElementById('ddAi');
+const genFab            = document.getElementById('genFab');
 const aiFab             = document.getElementById('aiFab');
 
 let currentDocURL  = '';
@@ -1227,8 +1283,12 @@ document.addEventListener('keydown', e => {
 });
 
 /* ══════════════════════════════════════════════════════════
-   FLOATING AI BUTTON
+   FLOATING BUTTONS (GEN & AI)
    ══════════════════════════════════════════════════════════ */
+genFab.addEventListener('click', () => {
+  window.location.href = 'gen.html';
+});
+
 aiFab.addEventListener('click', () => {
   aiFab.style.animation = 'none';
   void aiFab.offsetWidth;
